@@ -1,0 +1,24 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es5",
+    "lib": [
+      "es6"
+    ],
+    "allowJs": true,
+    "outDir": "build",
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
+    "strictNullChecks": true, /* When type checking, take into account 'null' and 'undefined'. */
+    "noImplicitThis": true, /* Raise error on 'this' expressions with an implied 'any' type. */
+  }
+}
