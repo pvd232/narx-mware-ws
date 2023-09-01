@@ -1,7 +1,7 @@
 import ffmpeg from 'fluent-ffmpeg';
 import streamBuffers from 'stream-buffers';
 import { Readable } from 'stream';
-export const convertToWav = (mp3Base64: string) => {
+export const convertToWav = (mp3Base64: string): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     const bufferStream = new Readable();
     const audioBuffer = Buffer.from(mp3Base64, 'base64');
@@ -14,7 +14,10 @@ export const convertToWav = (mp3Base64: string) => {
       .audioCodec('pcm_mulaw')
       .audioFrequency(8000)
       .on('error', reject)
-      .on('end', () => resolve(wavBuffer.getContentsAsString('base64')))
+      .on('end', () => {
+        let contents = wavBuffer.getContents();
+        resolve(contents ? contents : Buffer.alloc(0));
+      })
       .pipe(wavBuffer);
   });
 };

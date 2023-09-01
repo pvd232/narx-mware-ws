@@ -12,6 +12,9 @@ import findConfig from 'find-config';
 import { XIWebSocketResponse } from './XIWebSocketResponse.ts';
 import fs from 'fs';
 import { getGptReply } from './getGptReply.ts';
+import { convertToWav } from './audio_codec/convertToWav.ts';
+import { removeWavHeader } from './audio_codec/removeWavHeader.ts';
+import { getTwilioReply } from './audio_codec/getTwilioReply.ts';
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 const app = uWS.App();
@@ -62,15 +65,12 @@ app.ws('/*', {
 
         wsClient.send(JSON.stringify(eosMessage));
       })
-      .on('message', function message(data: string) {
+      .on('message', async function message(data: string) {
         let response: XIWebSocketResponse = JSON.parse(data);
         if (response.audio) {
-          console.log('Audio data is available');
-          const mp3Buffer = Buffer.from(response.audio, 'base64');
-          const timeString = (
-            new Date().getTime() - startTime.getTime()
-          ).toString();
-          fs.appendFileSync(`./voice/${timeString}.mp3`, mp3Buffer);
+          const twilioReply = getTwilioReply(response.audio, '1234');
+
+          // Send the audio to Twilio
         } else {
           console.log('No audio data in the response');
           console.log('response', response);
