@@ -1,8 +1,8 @@
-import { getTwilioReply } from './audio_codec/getTwilioReply.ts';
+import { getTwilioReply } from './helpers/getTwilioReply.ts';
 import { WebSocket } from 'uWebSockets.js';
 import WebSocketClient from 'ws';
-import { XIWebSocketResponse } from './types/XIWebSocketResponse.ts';
-import { TwilioUserData } from './types/TwilioUserData.ts';
+import { XIWebSocketResponse } from './types/interface/xi/XIWebSocketResponse.ts';
+import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
 export class MediaStream {
   private twilioWSConnection: WebSocket<TwilioUserData>;
   private xiWSClient: WebSocketClient;

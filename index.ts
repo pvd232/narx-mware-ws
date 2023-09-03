@@ -5,27 +5,21 @@ import uWS, {
   us_listen_socket,
 } from 'uWebSockets.js';
 import speech from '@google-cloud/speech';
-import { SpeechClient } from '@google-cloud/speech';
 import { protos } from '@google-cloud/speech';
-const AudioEncoding =
-  protos.google.cloud.speech.v1p1beta1.RecognitionConfig.AudioEncoding;
-// const StreamingRecognitionConfig =
-//   protos.google.cloud.speech.v1p1beta1.StreamingRecognitionConfig;
-// const Duration = protos.google.protobuf.Duration;
 import Pumpify from 'pumpify';
 
 import twilio from 'twilio';
-import { stringifyArrayBuffer } from './stringifyArrayBuffer.ts';
+import { stringifyArrayBuffer } from './helpers/stringifyArrayBuffer.ts';
 import WebSocketClient from 'ws';
 
 import dotenv from 'dotenv';
 import findConfig from 'find-config';
-import { getGptReply } from './getGptReply.ts';
+import { getGptReply } from './helpers/getGptReply.ts';
 import { MediaStream } from './MediaStream.ts';
-import { TwilioUserData } from './types/TwilioUserData.ts';
-import { MessageEvent } from './types/twilio/event/enums/MessageEvent.ts';
-import { StartEvent } from './types/twilio/event/StartEvent.ts';
-import { MediaEvent } from './types/twilio/event/MediaEvent.ts';
+import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
+import { MessageEvent } from './types/enums/MessageEvent.ts';
+import { StartEvent } from './types/interface/twilio/event/StartEvent.ts';
+import { MediaEvent } from './types/interface/twilio/event/MediaEvent.ts';
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 const app = uWS.App();
@@ -71,6 +65,7 @@ app.ws('/*', {
                   data.results[0].alternatives[0].transcript;
                 console.log('pharmReply', pharmReply);
                 const gptReply = (await getGptReply(pharmReply)) ?? 'Hello';
+                console.log('gptReply', gptReply);
                 return new MediaStream(
                   ws,
                   new WebSocketClient(
@@ -86,7 +81,7 @@ app.ws('/*', {
 
       case MessageEvent.Start:
         console.log(`Starting Media Stream ${msg.streamSid}`);
-        const twilioStartMsg = new StartEvent(msg);
+        const twilioStartMsg = msg as StartEvent;
 
         if (twilioStartMsg) {
           streamSid = twilioStartMsg.streamSid;
@@ -94,7 +89,7 @@ app.ws('/*', {
         break;
       case MessageEvent.Media:
         // Write Media Packets to the recognize stream continuously
-        const twilioMediaEvent = new MediaEvent(msg);
+        const twilioMediaEvent = msg as MediaEvent;
         if (recognizeStream !== undefined) {
           recognizeStream.write(twilioMediaEvent.media.payload);
         }
@@ -133,7 +128,8 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const blaise = '+17132565720';
   const mom = '+15125731975';
   const nimi = '+16363685761';
-  const phoneToCall = peter;
+  const maheep = '+12102138521';
+  const phoneToCall = maheep;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
