@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "@google-cloud/speech": "^6.0.1",
     "@types/find-config": "^1.0.1",
     "@types/fluent-ffmpeg": "^2.1.21",
     "@types/node": "^20.5.7",
@@ -12,6 +13,7 @@
     "openai": "^4.3.1",
     "stream-buffers": "^3.0.2",
     "ts-node": "^10.9.1",
+    "twilio": "^4.16.0",
     "typescript": "^5.2.2",
     "uWebSockets.js": "uNetworking/uWebSockets.js#v20.31.0",
     "ws": "^8.13.0"
