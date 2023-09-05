@@ -4,26 +4,22 @@ import WebSocketClient from 'ws';
 import { XIWebSocketResponse } from './types/interface/xi/XIWebSocketResponse.ts';
 import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
 import { AsyncPriorityQueue } from 'async';
+import { Cargo } from './Cargo.ts';
+import { convertToWav } from './helpers/convertToWav.ts';
+import { convertToWavCallback } from './helpers/convertToWavCallback.ts';
+import fs from 'fs';
 
 export class MediaStream {
-  private twilioWSConnection: WebSocket<TwilioUserData>;
   private xiWSClient: WebSocketClient;
-  private streamSid: string;
   private gptReply: string;
-  private asyncQueue: AsyncPriorityQueue<unknown>;
+  private cargo: Cargo;
+  private taskIndex = 0;
+  private xiAudioResults: string[] = [];
 
-  constructor(
-    twilioWSConnection: WebSocket<TwilioUserData>,
-    xiWSClient: WebSocketClient,
-    streamSid: string,
-    gptReply: string,
-    asyncQueue: AsyncPriorityQueue<unknown>
-  ) {
-    this.twilioWSConnection = twilioWSConnection;
+  constructor(xiWSClient: WebSocketClient, gptReply: string, cargo: Cargo) {
     this.xiWSClient = xiWSClient;
-    this.streamSid = streamSid;
     this.gptReply = gptReply;
-    this.asyncQueue = asyncQueue;
+    this.cargo = cargo;
 
     this.xiWSClient.on('connectFailed', (error: any) =>
       console.log('XI WebSocket client connect error: ' + error.toString())
@@ -38,11 +34,11 @@ export class MediaStream {
     this.xiWSClient.on('close', function (_data) {
       console.log('xiWSClient WebSocket closed');
     });
-    this.initiateXICommunication(this.gptReply);
+    this.initiateXICommunication();
   }
 
-  public initiateXICommunication(gptReply: string) {
-    const formattedGptReply = gptReply + ' ';
+  public initiateXICommunication() {
+    const formattedGptReply = this.gptReply + ' ';
     const streamInit = {
       text: ' ',
       voice_settings: {
@@ -56,7 +52,6 @@ export class MediaStream {
     };
 
     this.xiWSClient!.send(JSON.stringify(streamInit));
-    console.log('formattedGptReply', formattedGptReply);
     const textMessage = {
       text: formattedGptReply,
       try_trigger_generation: true,
@@ -73,12 +68,26 @@ export class MediaStream {
   }
 
   private handleMessageFromXI(jsonString: string) {
+    console.log('Received message from XI');
     let response: XIWebSocketResponse = JSON.parse(jsonString);
     if (response.audio) {
+      // const responseBuffer = Buffer.from(response.audio, 'base64');
+      // fs.writeFile(
+      //   `./${this.taskIndex}-xi-response.mp3`,
+      //   responseBuffer,
+      //   () => {
+      //     console.log('File written');
+      //   }
+      // );
+
       console.log('Audio data in the response');
-      getTwilioReply(response.audio, this.streamSid).then((twilioReply) => {
-        const twilioReplyJSON = JSON.stringify(twilioReply);
-        this.twilioWSConnection.send(twilioReplyJSON);
+      this.xiAudioResults.push(response.audio);
+      this.cargo.addTask({
+        task: convertToWavCallback.bind(
+          this,
+          Buffer.from(this.xiAudioResults[this.taskIndex], 'base64')
+        ),
+        index: this.taskIndex++,
       });
     } else {
       console.log('No audio data in the response');

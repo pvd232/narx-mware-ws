@@ -26,12 +26,14 @@ import { MediaEvent } from './types/interface/twilio/event/MediaEvent.ts';
 import { getTwilioReply } from './helpers/getTwilioReply.ts';
 import { convertAudio } from './helpers/convertAudio.ts';
 import { getMediaMsg } from './helpers/getMediaMsg.ts';
+import { Cargo } from './Cargo.ts';
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 const app = uWS.App();
 const googleSpeechClient = new speech.SpeechClient();
 let recognizeStream: Pumpify | undefined;
 let streamSid: string | undefined;
+let stream: MediaStream | undefined;
 app.ws('/*', {
   // Twilio client opens new connection
   open: async (ws: WebSocket<TwilioUserData>) => {
@@ -112,16 +114,12 @@ app.ws('/*', {
 
                   ws.send(JSON.stringify(twilioReply));
                 } else {
-                  return new MediaStream(
-                    ws,
+                  stream = new MediaStream(
                     new WebSocketClient(
                       `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
                     ),
-                    streamSid ?? '-1',
                     gptReply,
-                    async.priorityQueue(function (task, callback) {
-                      callback();
-                    }, -1)
+                    new Cargo(ws, streamSid ?? '-1')
                   );
                 }
             }
