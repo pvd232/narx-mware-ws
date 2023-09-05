@@ -73,6 +73,7 @@ app.ws('/*', {
                   data.results[0].alternatives[0].transcript;
                 console.log('pharmReply', pharmReply);
                 // Conditionally return cached audio
+                // const gptReply = "Hi, I'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock? I would really like to get my adderall so if you could check that would be great."
                 const gptReply = (await getGptReply(pharmReply)) ?? 'Hello';
                 console.log('gptReply', gptReply);
 
