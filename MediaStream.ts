@@ -1,23 +1,15 @@
-import { getTwilioReply } from './helpers/getTwilioReply.ts';
-import { WebSocket } from 'uWebSockets.js';
 import WebSocketClient from 'ws';
 import { XIWebSocketResponse } from './types/interface/xi/XIWebSocketResponse.ts';
-import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
-import { AsyncPriorityQueue } from 'async';
 import { Cargo } from './Cargo.ts';
-import { convertToWav } from './helpers/convertToWav.ts';
 import { convertToWavCallback } from './helpers/convertToWavCallback.ts';
-import fs from 'fs';
 
 export class MediaStream {
   private xiWSClient: WebSocketClient;
-  private gptReply: string;
   private cargo: Cargo;
   private taskIndex = 0;
 
-  constructor(xiWSClient: WebSocketClient, gptReply: string, cargo: Cargo) {
+  constructor(xiWSClient: WebSocketClient, cargo: Cargo) {
     this.xiWSClient = xiWSClient;
-    this.gptReply = gptReply;
     this.cargo = cargo;
 
     this.xiWSClient.on('connectFailed', (error: any) =>
@@ -33,11 +25,9 @@ export class MediaStream {
     this.xiWSClient.on('close', function (_data) {
       console.log('xiWSClient WebSocket closed');
     });
-    this.initiateXICommunication();
+    this.initStream();
   }
-
-  public initiateXICommunication() {
-    const formattedGptReply = this.gptReply + ' ';
+  private initStream() {
     const streamInit = {
       text: ' ',
       voice_settings: {
@@ -51,6 +41,10 @@ export class MediaStream {
     };
 
     this.xiWSClient!.send(JSON.stringify(streamInit));
+  }
+  public sendXIMessage(text: string) {
+    const formattedGptReply = text + ' ';
+
     const textMessage = {
       text: formattedGptReply,
       try_trigger_generation: true,
@@ -59,12 +53,14 @@ export class MediaStream {
     this.xiWSClient!.send(JSON.stringify(textMessage));
 
     // Send the EOS message with an empty string
+  }
+  public endStream = () => {
     const eosMessage = {
       text: '',
     };
 
     this.xiWSClient!.send(JSON.stringify(eosMessage));
-  }
+  };
 
   private handleMessageFromXI(jsonString: string) {
     console.log('Received message from XI');

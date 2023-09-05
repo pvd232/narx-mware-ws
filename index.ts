@@ -84,70 +84,107 @@ app.ws('/*', {
                 const pharmReply: string =
                   data.results[0].alternatives[0].transcript;
                 console.log('pharmReply', pharmReply);
-                // Conditionally return cached audio
-                // const gptReply = "Hi, I'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock? I would really like to get my adderall so if you could check that would be great."
-                // const gptStream = (await getGptReply(
-                //   pharmReply,
-                //   true
-                // )) as Stream<ChatCompletionChunk>;
-                // for await (const part of gptStream) {
-                //   const text = part.choices[0]?.delta?.content || '';
-                //   console.log('part.choices', part.choices);
-                //   console.log('text', text);
-                //   process.stdout.write(part.choices[0]?.delta?.content || '');
-                // }
+                const newStartTime = Date.now();
                 const gptReplyCompletion = (await getGptReply(
                   pharmReply,
                   false
                 )) as ChatCompletion;
+
                 const gptReply =
                   gptReplyCompletion.choices[0].message.content ?? '';
-                if (gptReply.toLowerCase() === 'great, thanks.') {
-                  const audioToSend = fs.readFileSync(
-                    './voice/great_thanks.wav'
-                  );
-                  const base64Audio = audioToSend.toString('base64');
-                  const twilioReply = getMediaMsg(
-                    base64Audio,
-                    streamSid ?? '-1'
-                  );
-                  ws.send(JSON.stringify(twilioReply));
-                } else if (
-                  gptReply.toLowerCase() ===
-                  "hi, i'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock?"
-                ) {
-                  const audioToSend = fs.readFileSync('./voice/intro.wav');
-                  const base64Audio = audioToSend.toString('base64');
-                  const twilioReply = getMediaMsg(
-                    base64Audio,
-                    streamSid ?? '-1'
-                  );
+                const endTime = Date.now() - newStartTime;
+                console.log('endTime', endTime);
+                // Conditionally return cached audio
+                // const gptReply = "Hi, I'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock? I would really like to get my adderall so if you could check that would be great."
+                stream = new MediaStream(
+                  new WebSocketClient(
+                    `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
+                  ),
+                  new Cargo(ws, streamSid ?? '-1')
+                );
+                let startTime = Date.now();
+                const gptStream = (await getGptReply(
+                  pharmReply,
+                  true
+                )) as Stream<ChatCompletionChunk>;
+                let response = '';
+                let started = false;
+                let sent = false;
+                for await (const part of gptStream) {
+                  if (!started) {
+                    let time = Date.now() - startTime;
+                    console.log('time', time);
+                    started = true;
+                  }
+                  const text = part.choices[0]?.delta?.content || '';
+                  if (
+                    response.split(' ').length < 2 ||
+                    !text.includes(' ') ||
+                    !text.match(/[a-z]/i)
+                  ) {
+                    response += text;
+                  } else {
+                    if (!sent) {
+                      let sendTime = Date.now() - startTime;
+                      console.log('sendTime', sendTime);
+                      sent = true;
+                    }
 
-                  ws.send(JSON.stringify(twilioReply));
-                } else if (
-                  gptReply
-                    .toLowerCase()
-                    .includes("it's 20 milligram instant release adderall")
-                ) {
-                  const audioToSend = fs.readFileSync(
-                    './voice/what_medication.wav'
-                  );
-                  const base64Audio = audioToSend.toString('base64');
-                  const twilioReply = getMediaMsg(
-                    base64Audio,
-                    streamSid ?? '-1'
-                  );
-
-                  ws.send(JSON.stringify(twilioReply));
-                } else {
-                  stream = new MediaStream(
-                    new WebSocketClient(
-                      `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
-                    ),
-                    gptReply,
-                    new Cargo(ws, streamSid ?? '-1')
-                  );
+                    stream.sendXIMessage(response);
+                    response = text;
+                  }
                 }
+                if (response !== '') {
+                  stream.sendXIMessage(response);
+                }
+                stream.endStream();
+
+              // if (gptReply.toLowerCase() === 'great, thanks.') {
+              //   const audioToSend = fs.readFileSync(
+              //     './voice/great_thanks.wav'
+              //   );
+              //   const base64Audio = audioToSend.toString('base64');
+              //   const twilioReply = getMediaMsg(
+              //     base64Audio,
+              //     streamSid ?? '-1'
+              //   );
+              //   ws.send(JSON.stringify(twilioReply));
+              // } else if (
+              //   gptReply.toLowerCase() ===
+              //   "hi, i'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock?"
+              // ) {
+              //   const audioToSend = fs.readFileSync('./voice/intro.wav');
+              //   const base64Audio = audioToSend.toString('base64');
+              //   const twilioReply = getMediaMsg(
+              //     base64Audio,
+              //     streamSid ?? '-1'
+              //   );
+
+              //   ws.send(JSON.stringify(twilioReply));
+              // } else if (
+              //   gptReply
+              //     .toLowerCase()
+              //     .includes("it's 20 milligram instant release adderall")
+              // ) {
+              //   const audioToSend = fs.readFileSync(
+              //     './voice/what_medication.wav'
+              //   );
+              //   const base64Audio = audioToSend.toString('base64');
+              //   const twilioReply = getMediaMsg(
+              //     base64Audio,
+              //     streamSid ?? '-1'
+              //   );
+
+              //   ws.send(JSON.stringify(twilioReply));
+              // } else {
+              // stream = new MediaStream(
+              //   new WebSocketClient(
+              //     `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
+              //   ),
+              //   gptReply,
+              //   new Cargo(ws, streamSid ?? '-1')
+              // );
+              // }
             }
           });
 
