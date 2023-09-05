@@ -14,7 +14,6 @@ export class MediaStream {
   private gptReply: string;
   private cargo: Cargo;
   private taskIndex = 0;
-  private xiAudioResults: string[] = [];
 
   constructor(xiWSClient: WebSocketClient, gptReply: string, cargo: Cargo) {
     this.xiWSClient = xiWSClient;
@@ -43,7 +42,7 @@ export class MediaStream {
       text: ' ',
       voice_settings: {
         stability: 0.5,
-        similarity_boost: 0.75,
+        similarity_boost: 0.6,
       },
       generation_config: {
         chunk_length_schedule: [120, 160, 250, 290],
@@ -71,21 +70,10 @@ export class MediaStream {
     console.log('Received message from XI');
     let response: XIWebSocketResponse = JSON.parse(jsonString);
     if (response.audio) {
-      // const responseBuffer = Buffer.from(response.audio, 'base64');
-      // fs.writeFile(
-      //   `./${this.taskIndex}-xi-response.mp3`,
-      //   responseBuffer,
-      //   () => {
-      //     console.log('File written');
-      //   }
-      // );
-
-      console.log('Audio data in the response');
-      this.xiAudioResults.push(response.audio);
       this.cargo.addTask({
         task: convertToWavCallback.bind(
-          this,
-          Buffer.from(this.xiAudioResults[this.taskIndex], 'base64')
+          null,
+          Buffer.from(response.audio, 'base64')
         ),
         index: this.taskIndex++,
       });

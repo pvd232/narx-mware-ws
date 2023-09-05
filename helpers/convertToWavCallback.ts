@@ -1,6 +1,5 @@
 import { spawn } from 'child_process';
 import streamBuffers from 'stream-buffers';
-import { Readable } from 'stream';
 
 export const convertToWavCallback = (
   mp3Buffer: Buffer,
@@ -38,6 +37,7 @@ export const convertToWavCallback = (
   });
 
   ffmpeg.on('error', (err) => {
+    console.error('Error:', err);
     callback(err, null);
   });
 

@@ -9,18 +9,14 @@ export class Cargo {
   public taskResults: Map<number, any> = new Map();
   private tasksCompleted = 0;
   public cargo = async.cargoQueue((tasks: AsyncTask[], callback) => {
-    // let promiseChain = Promise.resolve();
     tasks.forEach((task: AsyncTask) => {
       task.task((err: any, result: Buffer) => {
-        console.log(`Finished task: ${task.index}`);
         if (err) {
           console.error(`AsyncTask failed with error: ${err}`);
         } else {
-          console.log('this.tasksCompleted', this.tasksCompleted);
           // Add the result to taskResults Map
           this.taskResults.set(task.index, result);
           while (this.taskResults.get(this.tasksCompleted) !== undefined) {
-            console.log(`Finishing task at position: ${this.tasksCompleted}`);
             const wavBufferNoHeader = this.taskResults
               .get(this.tasksCompleted)
               .subarray(80);
@@ -32,8 +28,7 @@ export class Cargo {
         }
       });
     });
-    // promiseChain.then(() => callback()).catch((err) => callback(err));
-  }, 10); // Set payload to 2
+  }, 10); // Set concurrency to 2
   constructor(
     twilioWSConnection: WebSocket<TwilioUserData>,
     streamSid: string

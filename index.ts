@@ -27,8 +27,20 @@ import { getTwilioReply } from './helpers/getTwilioReply.ts';
 import { convertAudio } from './helpers/convertAudio.ts';
 import { getMediaMsg } from './helpers/getMediaMsg.ts';
 import { Cargo } from './Cargo.ts';
+import {
+  ChatCompletion,
+  ChatCompletionChunk,
+} from 'openai/resources/chat/index';
+import { Stream } from 'openai/streaming';
 dotenv.config({ path: findConfig('.env') ?? undefined });
-
+async function processStream(stream: any) {
+  for await (const chunk of stream) {
+    if (chunk.object === 'chat.completion.chunk') {
+      // Display data from the chunk
+      console.log('Received chunk:', chunk.choices[0].delta.content);
+    }
+  }
+}
 const app = uWS.App();
 const googleSpeechClient = new speech.SpeechClient();
 let recognizeStream: Pumpify | undefined;
@@ -74,9 +86,22 @@ app.ws('/*', {
                 console.log('pharmReply', pharmReply);
                 // Conditionally return cached audio
                 // const gptReply = "Hi, I'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock? I would really like to get my adderall so if you could check that would be great."
-                const gptReply = (await getGptReply(pharmReply)) ?? 'Hello';
-                console.log('gptReply', gptReply);
-
+                // const gptStream = (await getGptReply(
+                //   pharmReply,
+                //   true
+                // )) as Stream<ChatCompletionChunk>;
+                // for await (const part of gptStream) {
+                //   const text = part.choices[0]?.delta?.content || '';
+                //   console.log('part.choices', part.choices);
+                //   console.log('text', text);
+                //   process.stdout.write(part.choices[0]?.delta?.content || '');
+                // }
+                const gptReplyCompletion = (await getGptReply(
+                  pharmReply,
+                  false
+                )) as ChatCompletion;
+                const gptReply =
+                  gptReplyCompletion.choices[0].message.content ?? '';
                 if (gptReply.toLowerCase() === 'great, thanks.') {
                   const audioToSend = fs.readFileSync(
                     './voice/great_thanks.wav'

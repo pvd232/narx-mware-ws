@@ -83,7 +83,7 @@ const messages: Array<CreateChatCompletionRequestMessage> = [
   },
 ];
 
-export const getGptReply = async (message: string) => {
+export const getGptReply = async (message: string, stream: boolean) => {
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -99,7 +99,7 @@ export const getGptReply = async (message: string) => {
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
+    stream: stream,
   });
-  const reply = chat.choices[0].message.content;
-  return reply;
+  return chat;
 };
