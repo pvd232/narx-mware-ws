@@ -3,22 +3,28 @@ import { WebSocket } from 'uWebSockets.js';
 import WebSocketClient from 'ws';
 import { XIWebSocketResponse } from './types/interface/xi/XIWebSocketResponse.ts';
 import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
+import { AsyncPriorityQueue } from 'async';
+
 export class MediaStream {
   private twilioWSConnection: WebSocket<TwilioUserData>;
   private xiWSClient: WebSocketClient;
   private streamSid: string;
   private gptReply: string;
+  private asyncQueue: AsyncPriorityQueue<unknown>;
 
   constructor(
     twilioWSConnection: WebSocket<TwilioUserData>,
     xiWSClient: WebSocketClient,
     streamSid: string,
-    gptReply: string
+    gptReply: string,
+    asyncQueue: AsyncPriorityQueue<unknown>
   ) {
     this.twilioWSConnection = twilioWSConnection;
     this.xiWSClient = xiWSClient;
     this.streamSid = streamSid;
     this.gptReply = gptReply;
+    this.asyncQueue = asyncQueue;
+
     this.xiWSClient.on('connectFailed', (error: any) =>
       console.log('XI WebSocket client connect error: ' + error.toString())
     );
@@ -29,8 +35,8 @@ export class MediaStream {
     console.log('XI WebSocket client connected');
     this.xiWSClient.on('message', this.handleMessageFromXI.bind(this));
     this.xiWSClient.on('error', console.error);
-    this.xiWSClient.on('close', function (data) {
-      console.log('WebSocket closed');
+    this.xiWSClient.on('close', function (_data) {
+      console.log('xiWSClient WebSocket closed');
     });
     this.initiateXICommunication(this.gptReply);
   }
@@ -48,7 +54,9 @@ export class MediaStream {
       },
       xi_api_key: process.env.ELEVEN_LABS_API_KEY,
     };
+
     this.xiWSClient!.send(JSON.stringify(streamInit));
+    console.log('formattedGptReply', formattedGptReply);
     const textMessage = {
       text: formattedGptReply,
       try_trigger_generation: true,
@@ -64,12 +72,14 @@ export class MediaStream {
     this.xiWSClient!.send(JSON.stringify(eosMessage));
   }
 
-  private async handleMessageFromXI(jsonString: string) {
+  private handleMessageFromXI(jsonString: string) {
     let response: XIWebSocketResponse = JSON.parse(jsonString);
     if (response.audio) {
-      const twilioReply = await getTwilioReply(response.audio, this.streamSid);
-      const twilioReplyJSON = JSON.stringify(twilioReply);
-      this.twilioWSConnection.send(twilioReplyJSON);
+      console.log('Audio data in the response');
+      getTwilioReply(response.audio, this.streamSid).then((twilioReply) => {
+        const twilioReplyJSON = JSON.stringify(twilioReply);
+        this.twilioWSConnection.send(twilioReplyJSON);
+      });
     } else {
       console.log('No audio data in the response');
       console.log('response', response);

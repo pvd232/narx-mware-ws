@@ -7,12 +7,15 @@ import uWS, {
 import speech from '@google-cloud/speech';
 import { protos } from '@google-cloud/speech';
 import Pumpify from 'pumpify';
+import * as async from 'async';
 
 import twilio from 'twilio';
 import { stringifyArrayBuffer } from './helpers/stringifyArrayBuffer.ts';
 import WebSocketClient from 'ws';
-
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import url from 'url';
 import findConfig from 'find-config';
 import { getGptReply } from './helpers/getGptReply.ts';
 import { MediaStream } from './MediaStream.ts';
@@ -20,6 +23,9 @@ import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
 import { MessageEvent } from './types/enums/MessageEvent.ts';
 import { StartEvent } from './types/interface/twilio/event/StartEvent.ts';
 import { MediaEvent } from './types/interface/twilio/event/MediaEvent.ts';
+import { getTwilioReply } from './helpers/getTwilioReply.ts';
+import { convertAudio } from './helpers/convertAudio.ts';
+import { getMediaMsg } from './helpers/getMediaMsg.ts';
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 const app = uWS.App();
@@ -64,16 +70,60 @@ app.ws('/*', {
                 const pharmReply: string =
                   data.results[0].alternatives[0].transcript;
                 console.log('pharmReply', pharmReply);
+                // Conditionally return cached audio
                 const gptReply = (await getGptReply(pharmReply)) ?? 'Hello';
                 console.log('gptReply', gptReply);
-                return new MediaStream(
-                  ws,
-                  new WebSocketClient(
-                    `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
-                  ),
-                  streamSid ?? '-1',
+
+                if (gptReply.toLowerCase() === 'great, thanks.') {
+                  const audioToSend = fs.readFileSync(
+                    './voice/great_thanks.wav'
+                  );
+                  const base64Audio = audioToSend.toString('base64');
+                  const twilioReply = getMediaMsg(
+                    base64Audio,
+                    streamSid ?? '-1'
+                  );
+                  ws.send(JSON.stringify(twilioReply));
+                } else if (
+                  gptReply.toLowerCase() ===
+                  "hi, i'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock?"
+                ) {
+                  const audioToSend = fs.readFileSync('./voice/intro.wav');
+                  const base64Audio = audioToSend.toString('base64');
+                  const twilioReply = getMediaMsg(
+                    base64Audio,
+                    streamSid ?? '-1'
+                  );
+
+                  ws.send(JSON.stringify(twilioReply));
+                } else if (
                   gptReply
-                );
+                    .toLowerCase()
+                    .includes("it's 20 milligram instant release adderall")
+                ) {
+                  const audioToSend = fs.readFileSync(
+                    './voice/what_medication.wav'
+                  );
+                  const base64Audio = audioToSend.toString('base64');
+                  const twilioReply = getMediaMsg(
+                    base64Audio,
+                    streamSid ?? '-1'
+                  );
+
+                  ws.send(JSON.stringify(twilioReply));
+                } else {
+                  return new MediaStream(
+                    ws,
+                    new WebSocketClient(
+                      `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
+                    ),
+                    streamSid ?? '-1',
+                    gptReply,
+                    async.priorityQueue(function (task, callback) {
+                      callback();
+                    }, -1)
+                  );
+                }
             }
           });
 
@@ -112,6 +162,20 @@ app.ws('/*', {
 app.get('/', (res: HttpResponse, req: HttpRequest) => {
   res.end('Hello World');
 });
+app.get('/convert_audio', (res: HttpResponse, req: HttpRequest) => {
+  // read file from ./audio.mp3
+  const mp3File = req.getHeader('mp3-file');
+  const outputFile = req.getHeader('output-file');
+  const dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
+  const filePath = path.join(dirname, './voice', mp3File);
+  fs.readFile(filePath, (err, data) => {
+    const base64Mp3 = data.toString('base64');
+    // write file~
+    convertAudio(base64Mp3, outputFile);
+  });
+  res.end('Converted');
+  // convert to wav
+});
 app.post('/', (res: HttpResponse, req: HttpRequest) => {
   res.writeHeader('Content-Type', 'text/xml');
   res.end(`
@@ -129,7 +193,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const mom = '+15125731975';
   const nimi = '+16363685761';
   const maheep = '+12102138521';
-  const phoneToCall = maheep;
+  const phoneToCall = peter;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
