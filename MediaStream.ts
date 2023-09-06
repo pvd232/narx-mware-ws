@@ -8,17 +8,21 @@ export class MediaStream {
   private cargo: Cargo;
   private taskIndex = 0;
   public isStreaming = true;
+  public connectionState = 'disconnected';
   constructor(xiWSClient: WebSocketClient, cargo: Cargo) {
     this.xiWSClient = xiWSClient;
-    this.cargo = cargo;
-
+    this.xiWSClient.on('connecting', () => {
+      this.connectionState = 'connecting';
+    });
+    this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
     this.xiWSClient.on('connectFailed', (error: any) =>
       console.log('XI WebSocket client connect error: ' + error.toString())
     );
-    this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
+    this.cargo = cargo;
   }
 
   private prepareWebsockets() {
+    this.connectionState = 'connected';
     console.log('XI WebSocket client connected');
     this.xiWSClient.on('message', this.handleMessageFromXI.bind(this));
     this.xiWSClient.on('error', console.error);
@@ -28,20 +32,18 @@ export class MediaStream {
     this.initStream();
   }
   private initStream() {
-    if (this.isStreaming) {
-      const streamInit = {
-        text: ' ',
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.6,
-        },
-        generation_config: {
-          chunk_length_schedule: [120, 160, 250, 290],
-        },
-        xi_api_key: process.env.ELEVEN_LABS_API_KEY,
-      };
-      this.xiWSClient!.send(JSON.stringify(streamInit));
-    }
+    const streamInit = {
+      text: ' ',
+      voice_settings: {
+        stability: 0.5,
+        similarity_boost: 0.6,
+      },
+      generation_config: {
+        chunk_length_schedule: [120, 160, 250, 290],
+      },
+      xi_api_key: process.env.ELEVEN_LABS_API_KEY,
+    };
+    this.xiWSClient!.send(JSON.stringify(streamInit));
   }
   public sendXIMessage(text: string) {
     if (this.isStreaming) {
@@ -58,7 +60,6 @@ export class MediaStream {
     const eosMessage = {
       text: '',
     };
-
     this.xiWSClient!.send(JSON.stringify(eosMessage));
   };
 

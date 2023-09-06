@@ -1,0 +1,4 @@
+
+Pharmacist: hello
+Patient: ./voice/intro.wav
+Patient: Hi, I'm calling

@@ -26,14 +26,16 @@ import { Cargo } from './Cargo.ts';
 import { ChatCompletionChunk } from 'openai/resources/chat/index';
 import { Stream } from 'openai/streaming';
 import { respondWithVoice } from './responseWithVoice.ts';
+import { recordConversation } from './recordingConversation.ts';
 
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 const googleSpeechClient = new speech.SpeechClient();
-let recognizeStream: Pumpify | undefined;
-let streamSid: string | undefined;
-let stream: MediaStream | undefined;
-
+let recognizeStream: Pumpify | null;
+let streamSid: string | null;
+let stream: MediaStream | null;
+let twilioClient: twilio.Twilio;
+let callSid: string | null;
 const app = uWS.App();
 
 app.ws('/*', {
@@ -48,7 +50,9 @@ app.ws('/*', {
     _isBinary: boolean
   ) => {
     // Confirm twilio message schema
-
+    const date = new Date();
+    const dateString = `${date.getMonth()}-${date.getDate()}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
+    const fileName = `./recordings/${dateString}`;
     const msg = JSON.parse(stringifyArrayBuffer(message));
     switch (msg.event as MessageEvent) {
       case MessageEvent.Connected:
@@ -61,7 +65,7 @@ app.ws('/*', {
           },
           interimResults: false,
           voice_activity_timeout: {
-            speech_end_timeout: 1200,
+            speech_end_timeout: 100,
           },
         } as protos.google.cloud.speech.v1p1beta1.IStreamingRecognitionConfig;
         recognizeStream = googleSpeechClient
@@ -70,11 +74,6 @@ app.ws('/*', {
           .on('data', async (data) => {
             switch (data.speechEventType) {
               case 'SPEECH_EVENT_UNSPECIFIED':
-                // Let receiver speak first
-                const pharmReply: string =
-                  data.results[0].alternatives[0].transcript;
-                console.log('pharmReply', pharmReply);
-
                 stream = new MediaStream(
                   new WebSocketClient(
                     `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
@@ -82,6 +81,19 @@ app.ws('/*', {
                   new Cargo(ws, streamSid ?? '-1')
                 );
 
+                // Let receiver speak first
+                const pharmReply: string =
+                  data.results[0].alternatives[0].transcript;
+                console.log('callSid', callSid);
+                twilioClient
+                  .calls(callSid!)
+                  .update({})
+                  .then((call) => {
+                    console.log('call updated', call);
+                  });
+                recordConversation(fileName, 'Pharmacist', pharmReply);
+                console.log('pharmReply', pharmReply);
+                let completeResponse = '';
                 let startTime = Date.now();
                 const gptStream = (await getGptReply(
                   pharmReply,
@@ -99,7 +111,7 @@ app.ws('/*', {
 
                 for await (const part of gptStream) {
                   const text = part.choices[0]?.delta?.content || '';
-                  // If the response is less than 2 words, or doesn't contain a space (is a word fragment), or doesn't contain a word, add it to the response
+                  completeResponse += text;
                   if (
                     response.split(' ').length < 2 ||
                     !text.includes(' ') ||
@@ -129,14 +141,30 @@ app.ws('/*', {
                     }
                   }
                 }
-                // If there is still text left in response, send it
                 if (response !== '') {
                   stream.sendXIMessage(response);
                 }
                 stream.endStream();
+                recordConversation(
+                  fileName,
+                  'Patient',
+                  completeResponse,
+                  () => {
+                    if (completeResponse.toLowerCase().includes('goodbye')) {
+                      setTimeout(() => {
+                        console.log('closing stream');
+                        recognizeStream?.destroy();
+                        ws.close();
+                        return;
+                      }, 3000);
+                    }
+                  }
+                );
             }
           });
+
         break;
+
       case MessageEvent.Start:
         console.log(`Starting Media Stream ${msg.streamSid}`);
         const twilioStartMsg = msg as StartEvent;
@@ -148,14 +176,15 @@ app.ws('/*', {
       case MessageEvent.Media:
         // Write Media Packets to the recognize stream continuously
         const twilioMediaEvent = msg as MediaEvent;
-        if (recognizeStream !== undefined) {
+        if (recognizeStream !== null) {
           recognizeStream.write(twilioMediaEvent.media.payload);
         }
         break;
       case MessageEvent.Stop:
         console.log(`Call Has Ended`);
-        if (recognizeStream !== undefined) {
+        if (recognizeStream !== null) {
           recognizeStream.destroy();
+          recognizeStream = null;
         }
         break;
     }
@@ -177,9 +206,11 @@ app.get('/convert_audio', (res: HttpResponse, req: HttpRequest) => {
   const filePath = path.join(dirname, './voice', mp3File);
   fs.readFile(filePath, (err, data) => {
     const base64Mp3 = data.toString('base64');
+    // Write audio file
     convertAudio(base64Mp3, outputFile);
   });
   res.end('Converted');
+  // convert to wav
 });
 app.post('/', (res: HttpResponse, req: HttpRequest) => {
   res.writeHeader('Content-Type', 'text/xml');
@@ -198,26 +229,28 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const mom = '+15125731975';
   const nimi = '+16363685761';
   const maheep = '+12102138521';
+  const pharmacy = '+12122450636';
   const phoneToCall = peter;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
 
-  const client = twilio(accountSid, authToken);
+  twilioClient = twilio(accountSid, authToken);
   /* Can't return or yield from here without responding or attaching an abort handler */
   res.onAborted(() => {
     res.aborted = true;
   });
 
   /* Awaiting will yield and effectively return to C++, so you need to have called onAborted */
-  await client
+  await twilioClient
     .incomingPhoneNumbers('PN62be7bf578ccd82b025fe80d103f1cd3')
     .update({ voiceUrl: voiceUrl });
-  await client.calls.create({
+  const call = await twilioClient.calls.create({
     url: voiceUrl,
     to: phoneToCall,
     from: '+18883422703',
   });
+  callSid = call.sid;
   /* If we were aborted, you cannot respond */
   if (!res.aborted) {
     res.cork(() => {

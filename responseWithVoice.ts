@@ -7,7 +7,7 @@ export const respondWithVoice = async (
   message: string,
   ws: WebSocket<TwilioUserData>,
   voiceFiles: Map<String, string>,
-  streamSid: string | undefined
+  streamSid: string | null
 ) => {
   try {
     const data = await fs.promises.readFile(voiceFiles.get(message)!, {

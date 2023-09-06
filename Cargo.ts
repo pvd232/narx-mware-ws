@@ -10,7 +10,7 @@ export class Cargo {
   private tasksCompleted = 0;
   public cargo = async.cargoQueue((tasks: AsyncTask[], _callback) => {
     for (let i = 0; i < tasks.length; i++) {
-      const task = tasks[i];
+      let task = tasks[i];
       task.task((err: any, result: Buffer) => {
         if (err) {
           console.error(`AsyncTask failed with error: ${err}`);
@@ -29,7 +29,7 @@ export class Cargo {
         }
       });
     }
-  }, 15); // Set concurrency to 10
+  }, 15); // Set concurrency to 15
   constructor(
     twilioWSConnection: WebSocket<TwilioUserData>,
     streamSid: string
