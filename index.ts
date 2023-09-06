@@ -7,8 +7,6 @@ import uWS, {
 import speech from '@google-cloud/speech';
 import { protos } from '@google-cloud/speech';
 import Pumpify from 'pumpify';
-import * as async from 'async';
-
 import twilio from 'twilio';
 import { stringifyArrayBuffer } from './helpers/stringifyArrayBuffer.ts';
 import WebSocketClient from 'ws';
@@ -23,29 +21,21 @@ import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
 import { MessageEvent } from './types/enums/MessageEvent.ts';
 import { StartEvent } from './types/interface/twilio/event/StartEvent.ts';
 import { MediaEvent } from './types/interface/twilio/event/MediaEvent.ts';
-import { getTwilioReply } from './helpers/getTwilioReply.ts';
 import { convertAudio } from './helpers/convertAudio.ts';
-import { getMediaMsg } from './helpers/getMediaMsg.ts';
 import { Cargo } from './Cargo.ts';
-import {
-  ChatCompletion,
-  ChatCompletionChunk,
-} from 'openai/resources/chat/index';
+import { ChatCompletionChunk } from 'openai/resources/chat/index';
 import { Stream } from 'openai/streaming';
+import { respondWithVoice } from './responseWithVoice.ts';
+
 dotenv.config({ path: findConfig('.env') ?? undefined });
-async function processStream(stream: any) {
-  for await (const chunk of stream) {
-    if (chunk.object === 'chat.completion.chunk') {
-      // Display data from the chunk
-      console.log('Received chunk:', chunk.choices[0].delta.content);
-    }
-  }
-}
-const app = uWS.App();
+
 const googleSpeechClient = new speech.SpeechClient();
 let recognizeStream: Pumpify | undefined;
 let streamSid: string | undefined;
 let stream: MediaStream | undefined;
+
+const app = uWS.App();
+
 app.ws('/*', {
   // Twilio client opens new connection
   open: async (ws: WebSocket<TwilioUserData>) => {
@@ -71,7 +61,7 @@ app.ws('/*', {
           },
           interimResults: false,
           voice_activity_timeout: {
-            speech_end_timeout: 100,
+            speech_end_timeout: 1200,
           },
         } as protos.google.cloud.speech.v1p1beta1.IStreamingRecognitionConfig;
         recognizeStream = googleSpeechClient
@@ -84,112 +74,69 @@ app.ws('/*', {
                 const pharmReply: string =
                   data.results[0].alternatives[0].transcript;
                 console.log('pharmReply', pharmReply);
-                const newStartTime = Date.now();
-                const gptReplyCompletion = (await getGptReply(
-                  pharmReply,
-                  false
-                )) as ChatCompletion;
 
-                const gptReply =
-                  gptReplyCompletion.choices[0].message.content ?? '';
-                const endTime = Date.now() - newStartTime;
-                console.log('endTime', endTime);
-                // Conditionally return cached audio
-                // const gptReply = "Hi, I'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock? I would really like to get my adderall so if you could check that would be great."
                 stream = new MediaStream(
                   new WebSocketClient(
                     `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
                   ),
                   new Cargo(ws, streamSid ?? '-1')
                 );
+
                 let startTime = Date.now();
                 const gptStream = (await getGptReply(
                   pharmReply,
                   true
                 )) as Stream<ChatCompletionChunk>;
+
                 let response = '';
-                let started = false;
                 let sent = false;
+                const wordRegExp = /[a-z]/i;
+                const voiceFiles = new Map([
+                  ["hi, i'm", './voice/intro.wav'],
+                  ['great, thanks', './voice/great_thanks.wav'],
+                  ["it's adderall", './voice/what_medication.wav'],
+                ]);
+
                 for await (const part of gptStream) {
-                  if (!started) {
-                    let time = Date.now() - startTime;
-                    console.log('time', time);
-                    started = true;
-                  }
                   const text = part.choices[0]?.delta?.content || '';
+                  // If the response is less than 2 words, or doesn't contain a space (is a word fragment), or doesn't contain a word, add it to the response
                   if (
                     response.split(' ').length < 2 ||
                     !text.includes(' ') ||
-                    !text.match(/[a-z]/i)
+                    !text.match(wordRegExp)
                   ) {
                     response += text;
+                    continue;
                   } else {
                     if (!sent) {
                       let sendTime = Date.now() - startTime;
                       console.log('sendTime', sendTime);
                       sent = true;
                     }
-
-                    stream.sendXIMessage(response);
-                    response = text;
+                    // Cached audio responses
+                    if (voiceFiles.has(response.toLowerCase())) {
+                      stream.isStreaming = false;
+                      respondWithVoice(
+                        response.toLowerCase(),
+                        ws,
+                        voiceFiles,
+                        streamSid
+                      );
+                      break;
+                    } else {
+                      stream.sendXIMessage(response);
+                      response = text;
+                    }
                   }
                 }
+                // If there is still text left in response, send it
                 if (response !== '') {
                   stream.sendXIMessage(response);
                 }
                 stream.endStream();
-
-              // if (gptReply.toLowerCase() === 'great, thanks.') {
-              //   const audioToSend = fs.readFileSync(
-              //     './voice/great_thanks.wav'
-              //   );
-              //   const base64Audio = audioToSend.toString('base64');
-              //   const twilioReply = getMediaMsg(
-              //     base64Audio,
-              //     streamSid ?? '-1'
-              //   );
-              //   ws.send(JSON.stringify(twilioReply));
-              // } else if (
-              //   gptReply.toLowerCase() ===
-              //   "hi, i'm calling from a doctor's office to see if you have 20 milligram instant release adderall in stock?"
-              // ) {
-              //   const audioToSend = fs.readFileSync('./voice/intro.wav');
-              //   const base64Audio = audioToSend.toString('base64');
-              //   const twilioReply = getMediaMsg(
-              //     base64Audio,
-              //     streamSid ?? '-1'
-              //   );
-
-              //   ws.send(JSON.stringify(twilioReply));
-              // } else if (
-              //   gptReply
-              //     .toLowerCase()
-              //     .includes("it's 20 milligram instant release adderall")
-              // ) {
-              //   const audioToSend = fs.readFileSync(
-              //     './voice/what_medication.wav'
-              //   );
-              //   const base64Audio = audioToSend.toString('base64');
-              //   const twilioReply = getMediaMsg(
-              //     base64Audio,
-              //     streamSid ?? '-1'
-              //   );
-
-              //   ws.send(JSON.stringify(twilioReply));
-              // } else {
-              // stream = new MediaStream(
-              //   new WebSocketClient(
-              //     `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
-              //   ),
-              //   gptReply,
-              //   new Cargo(ws, streamSid ?? '-1')
-              // );
-              // }
             }
           });
-
         break;
-
       case MessageEvent.Start:
         console.log(`Starting Media Stream ${msg.streamSid}`);
         const twilioStartMsg = msg as StartEvent;
@@ -224,18 +171,15 @@ app.get('/', (res: HttpResponse, req: HttpRequest) => {
   res.end('Hello World');
 });
 app.get('/convert_audio', (res: HttpResponse, req: HttpRequest) => {
-  // read file from ./audio.mp3
   const mp3File = req.getHeader('mp3-file');
   const outputFile = req.getHeader('output-file');
   const dirname = path.dirname(url.fileURLToPath(new URL(import.meta.url)));
   const filePath = path.join(dirname, './voice', mp3File);
   fs.readFile(filePath, (err, data) => {
     const base64Mp3 = data.toString('base64');
-    // write file~
     convertAudio(base64Mp3, outputFile);
   });
   res.end('Converted');
-  // convert to wav
 });
 app.post('/', (res: HttpResponse, req: HttpRequest) => {
   res.writeHeader('Content-Type', 'text/xml');

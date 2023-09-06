@@ -1,32 +1,45 @@
-import ffmpeg from 'fluent-ffmpeg';
+import { spawn } from 'child_process';
 import streamBuffers from 'stream-buffers';
-import { Readable } from 'stream';
-export const convertToWav = (mp3Base64: string): Promise<Buffer> => {
-  console.log('convertToWav');
-  return new Promise((resolve, reject) => {
-    const bufferStream = new Readable();
-    const audioBuffer = Buffer.from(mp3Base64, 'base64');
-    bufferStream.push(audioBuffer);
-    bufferStream.push(null);
 
-    let wavBuffer = new streamBuffers.WritableStreamBuffer({
-      initialSize: audioBuffer.length,
-      incrementAmount: audioBuffer.length,
-    });
-    ffmpeg(bufferStream)
-      .format('wav')
-      .audioCodec('pcm_mulaw')
-      .audioFrequency(8000)
-      .outputOptions('-movflags frag_keyframe+empty_moov')
-      .on('error', (err, _stdout, stderr) => {
-        console.error('Error:', err);
-        console.error('ffmpeg stderr:', stderr);
-        reject(err);
-      })
-      .on('end', () => {
-        let contents = wavBuffer.getContents();
-        resolve(contents ? contents : Buffer.alloc(0));
-      })
-      .pipe(wavBuffer, { end: true });
+export const convertToWav = (
+  mp3Buffer: Buffer,
+  callback: (err: Error | null, buffer: Buffer | null) => void
+): void => {
+  const bufferStream = new streamBuffers.ReadableStreamBuffer({
+    initialSize: mp3Buffer.length,
   });
+  bufferStream.put(mp3Buffer);
+  bufferStream.stop();
+
+  let wavBuffer = new streamBuffers.WritableStreamBuffer({
+    initialSize: mp3Buffer.length,
+  });
+
+  const ffmpeg = spawn('ffmpeg', [
+    '-i',
+    'pipe:0',
+    '-f',
+    'wav',
+    '-acodec',
+    'pcm_mulaw',
+    '-ar',
+    '8000',
+    '-movflags',
+    'frag_keyframe+empty_moov',
+    'pipe:1',
+  ]);
+
+  ffmpeg.stdout.pipe(wavBuffer);
+
+  ffmpeg.on('close', (_code) => {
+    let contents = wavBuffer.getContents();
+    callback(null, contents ? contents : Buffer.alloc(0));
+  });
+
+  ffmpeg.on('error', (err) => {
+    console.error('Error:', err);
+    callback(err, null);
+  });
+
+  bufferStream.pipe(ffmpeg.stdin);
 };

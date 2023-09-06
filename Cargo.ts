@@ -8,8 +8,9 @@ export class Cargo {
   private streamSid: string;
   public taskResults: Map<number, any> = new Map();
   private tasksCompleted = 0;
-  public cargo = async.cargoQueue((tasks: AsyncTask[], callback) => {
-    tasks.forEach((task: AsyncTask) => {
+  public cargo = async.cargoQueue((tasks: AsyncTask[], _callback) => {
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
       task.task((err: any, result: Buffer) => {
         if (err) {
           console.error(`AsyncTask failed with error: ${err}`);
@@ -27,8 +28,8 @@ export class Cargo {
           }
         }
       });
-    });
-  }, 10); // Set concurrency to 2
+    }
+  }, 15); // Set concurrency to 10
   constructor(
     twilioWSConnection: WebSocket<TwilioUserData>,
     streamSid: string
