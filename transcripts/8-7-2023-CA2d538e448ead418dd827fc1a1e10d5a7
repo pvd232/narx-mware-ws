@@ -1,0 +1,6 @@
+
+user: this calling
+assistant: I apologize for any confusion. I'm calling from Dr. Smith's office to inquire about the availability of Adderall, 20 milligram instant release. Can you please let me know if you have it in stock?
+GPT Lag: 1538ms
+XI Lag: 982ms
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE96377c0a21f3a1874c8234900ab0121e

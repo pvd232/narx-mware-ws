@@ -1,0 +1,6 @@
+
+user: who's calling
+assistant: I'm calling from Dr. Smith's office.
+GPT Lag: 1032ms
+XI Lag: 0ms
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE71b3605fff6de453bfa5e62ad955e4cd

@@ -1,28 +1,28 @@
 import WebSocketClient from 'ws';
-import { XIWebSocketResponse } from './types/interface/xi/XIWebSocketResponse.ts';
+import { XIWebSocketResponse } from '../types/interface/xi/XIWebSocketResponse.ts';
 import { Cargo } from './Cargo.ts';
-import { convertToWav } from './helpers/convertToWav.ts';
+import { convertToWav } from '../helpers/convertToWav.ts';
+import { recordConversation } from './recordingConversation.ts';
 
 export class MediaStream {
   private xiWSClient: WebSocketClient;
   private cargo: Cargo;
   private taskIndex = 0;
   public isStreaming = true;
-  public connectionState = 'disconnected';
-  constructor(xiWSClient: WebSocketClient, cargo: Cargo) {
+  private fileName = '';
+  private firstXiMessageSent = 0;
+  public latency = 0;
+  constructor(xiWSClient: WebSocketClient, cargo: Cargo, fileName: string) {
     this.xiWSClient = xiWSClient;
-    this.xiWSClient.on('connecting', () => {
-      this.connectionState = 'connecting';
-    });
     this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
     this.xiWSClient.on('connectFailed', (error: any) =>
       console.log('XI WebSocket client connect error: ' + error.toString())
     );
     this.cargo = cargo;
+    this.fileName = fileName;
   }
 
   private prepareWebsockets() {
-    this.connectionState = 'connected';
     console.log('XI WebSocket client connected');
     this.xiWSClient.on('message', this.handleMessageFromXI.bind(this));
     this.xiWSClient.on('error', console.error);
@@ -43,16 +43,30 @@ export class MediaStream {
       },
       xi_api_key: process.env.ELEVEN_LABS_API_KEY,
     };
-    this.xiWSClient!.send(JSON.stringify(streamInit));
+    if (this.xiWSClient.OPEN) {
+      this.xiWSClient!.send(JSON.stringify(streamInit));
+    }
   }
   public sendXIMessage(text: string) {
+    if (this.firstXiMessageSent === 0) {
+      this.firstXiMessageSent = Date.now();
+    }
     if (this.isStreaming) {
       const formattedGptReply = text + ' ';
       const textMessage = {
         text: formattedGptReply,
         try_trigger_generation: true,
       };
-      this.xiWSClient!.send(JSON.stringify(textMessage));
+      if (this.xiWSClient.OPEN) {
+        this.xiWSClient!.send(JSON.stringify(textMessage));
+      } else {
+        console.log('XI WebSocket client is not open');
+        recordConversation(
+          this.fileName,
+          'failed assistant',
+          formattedGptReply
+        );
+      }
     }
   }
   public endStream = () => {
@@ -60,11 +74,16 @@ export class MediaStream {
     const eosMessage = {
       text: '',
     };
-    this.xiWSClient!.send(JSON.stringify(eosMessage));
+    if (this.xiWSClient.OPEN) {
+      this.xiWSClient!.send(JSON.stringify(eosMessage));
+    }
   };
 
   private handleMessageFromXI(jsonString: string) {
     console.log('Received message from XI');
+    if (this.latency === 0) {
+      this.latency = Date.now() - this.firstXiMessageSent;
+    }
     if (this.isStreaming) {
       let response: XIWebSocketResponse = JSON.parse(jsonString);
       if (response.audio) {

@@ -1,0 +1,8 @@
+
+user: who's calling
+assistant: I'm calling from Dr. Smith's office. Can you please check if you have Adderall, 20 milligram instant release, in stock?
+GPT Lag: 902ms
+XI Lag: 896ms
+user:  who who's calling
+assistant: I'm calling from Dr. Smith's office.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE596181c0eb1d5654af209770c4fb2841

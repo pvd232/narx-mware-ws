@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { WebSocket } from 'uWebSockets.js';
-import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
-import { getMediaMsg } from './helpers/getMediaMsg.ts';
+import { TwilioUserData } from '../types/interface/twilio/TwilioUserData.ts';
+import { getMediaMsg } from '../helpers/getMediaMsg.ts';
 
 export const respondWithVoice = async (
   message: string,

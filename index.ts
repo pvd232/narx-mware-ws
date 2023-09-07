@@ -16,26 +16,28 @@ import path from 'path';
 import url from 'url';
 import findConfig from 'find-config';
 import { getGptReply } from './helpers/getGptReply.ts';
-import { MediaStream } from './MediaStream.ts';
+import { MediaStream } from './stream/MediaStream.ts';
 import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
 import { MessageEvent } from './types/enums/MessageEvent.ts';
 import { StartEvent } from './types/interface/twilio/event/StartEvent.ts';
 import { MediaEvent } from './types/interface/twilio/event/MediaEvent.ts';
 import { convertAudio } from './helpers/convertAudio.ts';
-import { Cargo } from './Cargo.ts';
+import { Cargo } from './stream/Cargo.ts';
 import { ChatCompletionChunk } from 'openai/resources/chat/index';
 import { Stream } from 'openai/streaming';
-import { respondWithVoice } from './responseWithVoice.ts';
-import { recordConversation } from './recordingConversation.ts';
-
+import { respondWithVoice } from './stream/responseWithVoice.ts';
+import { recordConversation } from './stream/recordingConversation.ts';
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
+let hostName = '';
 const googleSpeechClient = new speech.SpeechClient();
 let recognizeStream: Pumpify | null;
 let streamSid: string | null;
 let stream: MediaStream | null;
 let twilioClient: twilio.Twilio;
 let callSid: string | null;
+let ivrDigits = '';
+let fileName = '';
 const app = uWS.App();
 
 app.ws('/*', {
@@ -51,8 +53,16 @@ app.ws('/*', {
   ) => {
     // Confirm twilio message schema
     const date = new Date();
-    const dateString = `${date.getMonth()}-${date.getDate()}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
-    const fileName = `./recordings/${dateString}`;
+    const dateString = `${date.getMonth()}-${date.getDate()}-${date.getFullYear()}-${date.getHours()}-${callSid}`;
+    fileName = `./transcripts/${dateString}`;
+    let gptResponseTime = 0;
+    const voiceFiles = new Map([
+      ["hi, i'm", './voice/intro.wav'],
+      ['great, thanks', './voice/great_thanks.wav'],
+      ["it's adderall", './voice/what_medication.wav'],
+    ]);
+    const wordRegExp = /[a-z]/i;
+
     const msg = JSON.parse(stringifyArrayBuffer(message));
     switch (msg.event as MessageEvent) {
       case MessageEvent.Connected:
@@ -78,21 +88,14 @@ app.ws('/*', {
                   new WebSocketClient(
                     `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
                   ),
-                  new Cargo(ws, streamSid ?? '-1')
+                  new Cargo(ws, streamSid ?? '-1'),
+                  fileName
                 );
-
                 // Let receiver speak first
                 const pharmReply: string =
                   data.results[0].alternatives[0].transcript;
-                console.log('callSid', callSid);
-                twilioClient
-                  .calls(callSid!)
-                  .update({})
-                  .then((call) => {
-                    console.log('call updated', call);
-                  });
-                recordConversation(fileName, 'Pharmacist', pharmReply);
-                console.log('pharmReply', pharmReply);
+
+                recordConversation(fileName, 'user', pharmReply);
                 let completeResponse = '';
                 let startTime = Date.now();
                 const gptStream = (await getGptReply(
@@ -102,12 +105,6 @@ app.ws('/*', {
 
                 let response = '';
                 let sent = false;
-                const wordRegExp = /[a-z]/i;
-                const voiceFiles = new Map([
-                  ["hi, i'm", './voice/intro.wav'],
-                  ['great, thanks', './voice/great_thanks.wav'],
-                  ["it's adderall", './voice/what_medication.wav'],
-                ]);
 
                 for await (const part of gptStream) {
                   const text = part.choices[0]?.delta?.content || '';
@@ -119,10 +116,22 @@ app.ws('/*', {
                   ) {
                     response += text;
                     continue;
+                  } else if (response.toLowerCase().includes('press')) {
+                    const ivrResponse = response.split(' ').slice(-1)[0];
+                    stream.isStreaming = false;
+                    ivrDigits += ivrResponse;
+                    twilioClient.calls(callSid!).update({
+                      twiml: `<Response>
+                        <Play digits="${ivrDigits}"> </Play>
+                        <Connect>
+                          <Stream url="wss://${hostName}/"> </Stream>
+                        </Connect>
+                      </Response>`,
+                    });
+                    break;
                   } else {
                     if (!sent) {
-                      let sendTime = Date.now() - startTime;
-                      console.log('sendTime', sendTime);
+                      gptResponseTime = Date.now() - startTime;
                       sent = true;
                     }
                     // Cached audio responses
@@ -142,13 +151,29 @@ app.ws('/*', {
                   }
                 }
                 if (response !== '') {
-                  stream.sendXIMessage(response);
+                  if (response.toLowerCase().includes('press')) {
+                    const ivrResponse = response.split(' ').slice(-1)[0];
+                    stream.isStreaming = false;
+                    ivrDigits += ivrResponse;
+                    twilioClient.calls(callSid!).update({
+                      twiml: `<Response>
+                        <Play digits="${ivrDigits}"> </Play>
+                        <Connect>
+                          <Stream url="wss://${hostName}/"> </Stream>
+                        </Connect>
+                      </Response>`,
+                    });
+                  } else {
+                    stream.sendXIMessage(response);
+                  }
                 }
                 stream.endStream();
                 recordConversation(
                   fileName,
-                  'Patient',
+                  'assistant',
                   completeResponse,
+                  gptResponseTime,
+                  stream.latency,
                   () => {
                     if (completeResponse.toLowerCase().includes('goodbye')) {
                       setTimeout(() => {
@@ -213,6 +238,7 @@ app.get('/convert_audio', (res: HttpResponse, req: HttpRequest) => {
   // convert to wav
 });
 app.post('/', (res: HttpResponse, req: HttpRequest) => {
+  hostName = req.getHeader('host') ?? '';
   res.writeHeader('Content-Type', 'text/xml');
   res.end(`
     <Response>
@@ -229,7 +255,8 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const mom = '+15125731975';
   const nimi = '+16363685761';
   const maheep = '+12102138521';
-  const pharmacy = '+12122450636';
+  const cvs1 = '+16464165752';
+  const LICChemists = '+17183928049';
   const phoneToCall = peter;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -249,6 +276,8 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
     url: voiceUrl,
     to: phoneToCall,
     from: '+18883422703',
+    record: true,
+    statusCallback: `${voiceUrl}/record`,
   });
   callSid = call.sid;
   /* If we were aborted, you cannot respond */
@@ -258,7 +287,22 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
     });
   }
 });
-
+app.post('/record', async (res: HttpResponse, req: HttpRequest) => {
+  res.onAborted(() => {
+    res.aborted = true;
+  });
+  res.onData((data) => {
+    const encodedData = stringifyArrayBuffer(data);
+    const recordingUrl = encodedData.split('RecordingUrl=')[1].split('&')[0];
+    const decodedRecordingUrl = decodeURIComponent(recordingUrl);
+    recordConversation(fileName, 'admin', decodedRecordingUrl);
+  });
+  if (!res.aborted) {
+    res.cork(() => {
+      res.end('Call recorded');
+    });
+  }
+});
 app.listen(8080, (listenSocket: false | us_listen_socket) => {
   if (listenSocket) {
     console.log('Listening to port 8080');

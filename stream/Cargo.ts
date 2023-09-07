@@ -1,8 +1,8 @@
 import * as async from 'async';
-import { AsyncTask } from './types/interface/AsyncTask';
-import { TwilioUserData } from './types/interface/twilio/TwilioUserData';
+import { AsyncTask } from '../types/interface/AsyncTask.ts';
+import { TwilioUserData } from '../types/interface/twilio/TwilioUserData.ts';
 import { WebSocket } from 'uWebSockets.js';
-import { getMediaMsg } from './helpers/getMediaMsg.ts';
+import { getMediaMsg } from '../helpers/getMediaMsg.ts';
 export class Cargo {
   private twilioWSConnection: WebSocket<TwilioUserData>;
   private streamSid: string;

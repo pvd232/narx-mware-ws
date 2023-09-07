@@ -1,0 +1,20 @@
+
+User: calling for the pharmacy say yes or press one or no or press 2
+Assistant: Press 1.
+User: sorry are you calling for the pharmacy say yes or press one no or press 2
+Assistant: Yes.
+User:  okay which would you like to refill a prescription or press one prescribe ER or press to get prescriptions status or press 3 connect to Minute Clinic or press 5 your Pharmacy hours or press 6 or speak with the pharmacy or press 7
+Assistant: Press 7 to speak with the pharmacy.
+Response time: 620ms
+User:  sorry what do you need you can say refill a prescription or press one prescribe ER or press to get prescriptions status or press 3 connect to a minute clinic or press 5 your Pharmacy hours or press 6 or speak with the pharmacy or press 7
+Assistant: Speak with the pharmacy.
+Response time: 980ms
+User:  one moment well I transfer you to the pharmacy for assistance
+Assistant: Thank you, I appreciate it.
+Response time: 887ms
+User: did you know CVS Pharmacy offers over 15 vaccines for you and your family like shingles and ammonia appetite is be and more visit CB s.com slash vaccines to schedule yours today
+Assistant: Thank you for the information, but I'm actually calling to inquire about a specific medication. Can I speak with a pharmacist, please?
+Response time: 820ms
+User:  hi Eric I hope you
+Assistant: Hi, I'm calling
+Response time: 590ms
