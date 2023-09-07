@@ -1,0 +1,6 @@
+
+user: Hello?
+assistant: Hi there, I'm calling from a doctor's office to inquire if you have Adderall, 20 milligram instant release, in stock?
+user: No. I don't think we do.
+assistant: Got it, thank you for checking. Have a good day. Goodbye!
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE415c100c990dc88381509d5e58e7f8e5

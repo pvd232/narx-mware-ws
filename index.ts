@@ -4,9 +4,6 @@ import uWS, {
   WebSocket,
   us_listen_socket,
 } from 'uWebSockets.js';
-import speech from '@google-cloud/speech';
-import { protos } from '@google-cloud/speech';
-import Pumpify from 'pumpify';
 import twilio from 'twilio';
 import { stringifyArrayBuffer } from './helpers/stringifyArrayBuffer.ts';
 import WebSocketClient from 'ws';
@@ -14,6 +11,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import url from 'url';
+import pkg from '@deepgram/sdk';
 import findConfig from 'find-config';
 import { getGptReply } from './helpers/getGptReply.ts';
 import { MediaStream } from './stream/MediaStream.ts';
@@ -25,13 +23,17 @@ import { convertAudio } from './helpers/convertAudio.ts';
 import { Cargo } from './stream/Cargo.ts';
 import { ChatCompletionChunk } from 'openai/resources/chat/index';
 import { Stream } from 'openai/streaming';
-import { respondWithVoice } from './stream/responseWithVoice.ts';
+// import { respondWithVoice } from './stream/responseWithVoice.ts';
 import { recordConversation } from './stream/recordingConversation.ts';
+import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscription';
+const { Deepgram } = pkg;
+import { messages } from './helpers/messages.ts';
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 let hostName = '';
-const googleSpeechClient = new speech.SpeechClient();
-let recognizeStream: Pumpify | null;
+const deepgramClient = new Deepgram(process.env.DEEPGRAM_API_KEY!);
+let deepgramStream: LiveTranscription | null;
+
 let streamSid: string | null;
 let stream: MediaStream | null;
 let twilioClient: twilio.Twilio;
@@ -39,178 +41,189 @@ let callSid: string | null;
 let ivrDigits = '';
 let fileName = '';
 const app = uWS.App();
-
+const date = new Date();
+const dateString = `${date.getMonth()}-${date.getDate()}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
+let isOpen = false;
+fileName = `./transcripts/${dateString}`;
+const messagesClone = [...messages];
 app.ws('/*', {
   // Twilio client opens new connection
   open: async (ws: WebSocket<TwilioUserData>) => {
     // Conditional IVR logic, wait 2 seconds for user to say something
     console.log('New Connection Initiated');
+    isOpen = true;
   },
   message: (
     ws: WebSocket<TwilioUserData>,
     message: ArrayBuffer,
     _isBinary: boolean
   ) => {
-    // Confirm twilio message schema
-    const date = new Date();
-    const dateString = `${date.getMonth()}-${date.getDate()}-${date.getFullYear()}-${date.getHours()}-${callSid}`;
-    fileName = `./transcripts/${dateString}`;
-    let gptResponseTime = 0;
-    const voiceFiles = new Map([
-      ["hi, i'm", './voice/intro.wav'],
-      ['great, thanks', './voice/great_thanks.wav'],
-      ["it's adderall", './voice/what_medication.wav'],
-    ]);
+    // const voiceFiles = new Map([
+    //   ["hi, i'm", './voice/intro.wav'],
+    //   ['great, thanks', './voice/great_thanks.wav'],
+    //   ["it's adderall", './voice/what_medication.wav'],
+    // ]);
     const wordRegExp = /[a-z]/i;
-
     const msg = JSON.parse(stringifyArrayBuffer(message));
     switch (msg.event as MessageEvent) {
       case MessageEvent.Connected:
         console.log('Connected');
-        const googleSpeechRequest = {
-          config: {
-            encoding: 'MULAW',
-            sampleRateHertz: 8000,
-            languageCode: 'en-US',
-          },
-          interimResults: false,
-          voice_activity_timeout: {
-            speech_end_timeout: 100,
-          },
-        } as protos.google.cloud.speech.v1p1beta1.IStreamingRecognitionConfig;
-        recognizeStream = googleSpeechClient
-          .streamingRecognize(googleSpeechRequest)
-          .on('error', (e) => console.log('Google Speech to Text Error', e))
-          .on('data', async (data) => {
-            switch (data.speechEventType) {
-              case 'SPEECH_EVENT_UNSPECIFIED':
-                stream = new MediaStream(
-                  new WebSocketClient(
-                    `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}`
-                  ),
-                  new Cargo(ws, streamSid ?? '-1'),
-                  fileName
-                );
+
+        deepgramStream = deepgramClient.transcription
+          .live({
+            punctuate: true,
+            interim_results: false,
+            language: 'en-US',
+            model: 'nova',
+            encoding: 'mulaw',
+            sample_rate: 8000,
+          })
+          .on('error', (e) => console.log('Deepgram transcription error', e))
+          .on('transcriptReceived', async (message) => {
+            const data = JSON.parse(message);
+            switch (data.type) {
+              case 'Results':
                 // Let receiver speak first
                 const pharmReply: string =
-                  data.results[0].alternatives[0].transcript;
+                  data.channel.alternatives[0].transcript;
+                if (pharmReply !== '') {
+                  messages.push({
+                    role: 'user',
+                    content: pharmReply,
+                  });
+                  stream = new MediaStream(
+                    new WebSocketClient(
+                      `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
+                    ),
+                    new Cargo(ws, streamSid ?? '-1'),
+                    fileName
+                  );
 
-                recordConversation(fileName, 'user', pharmReply);
-                let completeResponse = '';
-                let startTime = Date.now();
-                const gptStream = (await getGptReply(
-                  pharmReply,
-                  true
-                )) as Stream<ChatCompletionChunk>;
+                  console.log('pharmReply', pharmReply);
+                  recordConversation(fileName, 'user', pharmReply);
 
-                let response = '';
-                let sent = false;
+                  const gptStream = (await getGptReply(
+                    messages,
+                    true
+                  )) as Stream<ChatCompletionChunk>;
 
-                for await (const part of gptStream) {
-                  const text = part.choices[0]?.delta?.content || '';
-                  completeResponse += text;
-                  if (
-                    response.split(' ').length < 2 ||
-                    !text.includes(' ') ||
-                    !text.match(wordRegExp)
-                  ) {
-                    response += text;
-                    continue;
-                  } else if (response.toLowerCase().includes('press')) {
-                    const ivrResponse = response.split(' ').slice(-1)[0];
-                    stream.isStreaming = false;
-                    ivrDigits += ivrResponse;
-                    twilioClient.calls(callSid!).update({
-                      twiml: `<Response>
+                  let response = '';
+                  let completeResponse = '';
+
+                  for await (const part of gptStream) {
+                    const text = part.choices[0]?.delta?.content || '';
+                    completeResponse += text;
+                    if (
+                      response.split(' ').length < 1 ||
+                      !text.includes(' ') ||
+                      !text.match(wordRegExp)
+                    ) {
+                      response += text;
+                      continue;
+                    } else if (response.toLowerCase().includes('press')) {
+                      const ivrResponse = response.split(' ').slice(-1)[0];
+                      stream.isStreaming = false;
+                      ivrDigits += ivrResponse;
+                      twilioClient.calls(callSid!).update({
+                        twiml: `<Response>
                         <Play digits="${ivrDigits}"> </Play>
                         <Connect>
                           <Stream url="wss://${hostName}/"> </Stream>
                         </Connect>
                       </Response>`,
-                    });
-                    break;
-                  } else {
-                    if (!sent) {
-                      gptResponseTime = Date.now() - startTime;
-                      sent = true;
-                    }
-                    // Cached audio responses
-                    if (voiceFiles.has(response.toLowerCase())) {
-                      stream.isStreaming = false;
-                      respondWithVoice(
-                        response.toLowerCase(),
-                        ws,
-                        voiceFiles,
-                        streamSid
-                      );
+                      });
                       break;
                     } else {
+                      // Cached audio responses
+                      // if (voiceFiles.has(response.toLowerCase())) {
+                      //   stream.isStreaming = false;
+                      //   respondWithVoice(
+                      //     response.toLowerCase(),
+                      //     ws,
+                      //     voiceFiles,
+                      //     streamSid
+                      //   );
+                      //   break;
+                      // } else {
                       stream.sendXIMessage(response);
                       response = text;
+                      continue;
+                      // }
                     }
                   }
-                }
-                if (response !== '') {
-                  if (response.toLowerCase().includes('press')) {
-                    const ivrResponse = response.split(' ').slice(-1)[0];
-                    stream.isStreaming = false;
-                    ivrDigits += ivrResponse;
-                    twilioClient.calls(callSid!).update({
-                      twiml: `<Response>
+                  messages.push({
+                    role: 'assistant',
+                    content: completeResponse,
+                  });
+
+                  if (response !== '') {
+                    if (response.toLowerCase().includes('press')) {
+                      const ivrResponse = response.split(' ').slice(-1)[0];
+                      stream.isStreaming = false;
+                      ivrDigits += ivrResponse;
+                      twilioClient.calls(callSid!).update({
+                        twiml: `<Response>
                         <Play digits="${ivrDigits}"> </Play>
                         <Connect>
                           <Stream url="wss://${hostName}/"> </Stream>
                         </Connect>
                       </Response>`,
-                    });
-                  } else {
-                    stream.sendXIMessage(response);
-                  }
-                }
-                stream.endStream();
-                recordConversation(
-                  fileName,
-                  'assistant',
-                  completeResponse,
-                  gptResponseTime,
-                  stream.latency,
-                  () => {
-                    if (completeResponse.toLowerCase().includes('goodbye')) {
-                      setTimeout(() => {
-                        console.log('closing stream');
-                        recognizeStream?.destroy();
-                        ws.close();
-                        return;
-                      }, 3000);
+                      });
+                    } else {
+                      stream.sendXIMessage(response);
                     }
                   }
-                );
+                  stream.endStream();
+                  recordConversation(
+                    fileName,
+                    'assistant',
+                    completeResponse,
+                    () => {
+                      if (completeResponse.toLowerCase().includes('goodbye')) {
+                        setTimeout(() => {
+                          console.log('closing stream');
+                          deepgramStream?.send(
+                            JSON.stringify({ type: 'CloseStream' })
+                          );
+                          if (isOpen) {
+                            ws.end();
+                          }
+                          return;
+                        }, 5000);
+                      }
+                    }
+                  );
+                } else {
+                  console.log('Pharm reply empty');
+                }
             }
           });
 
         break;
 
       case MessageEvent.Start:
-        console.log(`Starting Media Stream ${msg.streamSid}`);
         const twilioStartMsg = msg as StartEvent;
-
         if (twilioStartMsg) {
           streamSid = twilioStartMsg.streamSid;
         }
+        console.log(`Starting Media Stream ${msg.streamSid}`);
+
         break;
       case MessageEvent.Media:
         // Write Media Packets to the recognize stream continuously
         const twilioMediaEvent = msg as MediaEvent;
-        if (recognizeStream !== null) {
-          recognizeStream.write(twilioMediaEvent.media.payload);
+        if (deepgramStream !== null && deepgramStream.getReadyState() === 1) {
+          deepgramStream.send(
+            Buffer.from(twilioMediaEvent.media.payload, 'base64')
+          );
         }
         break;
       case MessageEvent.Stop:
         console.log(`Call Has Ended`);
-        if (recognizeStream !== null) {
-          recognizeStream.destroy();
-          recognizeStream = null;
+        if (deepgramStream !== null) {
+          deepgramStream?.send(JSON.stringify({ type: 'CloseStream' }));
         }
+        isOpen = false;
         break;
     }
   },

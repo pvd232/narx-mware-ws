@@ -1,0 +1,9 @@
+
+user: Hello?
+assistant: Hello, I'm calling from a doctor's office to inquire about the availability of Adderall, 20 milligram instant release. Could you please let me know if you have it in stock?
+GPT Lag: 579ms
+XI Lag: 890ms
+user: I'll just go check.
+assistant: Sure, please take your time. Thank you.
+user: No. I don't think we have any
+assistant: Got it, thank you for checking. Goodbye.

@@ -10,8 +10,7 @@ export class MediaStream {
   private taskIndex = 0;
   public isStreaming = true;
   private fileName = '';
-  private firstXiMessageSent = 0;
-  public latency = 0;
+  private queuedMessages: string[] = [];
   constructor(xiWSClient: WebSocketClient, cargo: Cargo, fileName: string) {
     this.xiWSClient = xiWSClient;
     this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
@@ -21,46 +20,47 @@ export class MediaStream {
     this.cargo = cargo;
     this.fileName = fileName;
   }
-
   private prepareWebsockets() {
     console.log('XI WebSocket client connected');
+    this.initStream();
     this.xiWSClient.on('message', this.handleMessageFromXI.bind(this));
     this.xiWSClient.on('error', console.error);
     this.xiWSClient.on('close', function (_data) {
       console.log('xiWSClient WebSocket closed');
     });
-    this.initStream();
   }
   private initStream() {
     const streamInit = {
       text: ' ',
       voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.6,
+        stability: 0.4,
+        similarity_boost: 0.75,
       },
       generation_config: {
         chunk_length_schedule: [120, 160, 250, 290],
       },
       xi_api_key: process.env.ELEVEN_LABS_API_KEY,
     };
-    if (this.xiWSClient.OPEN) {
-      this.xiWSClient!.send(JSON.stringify(streamInit));
+    this.xiWSClient!.send(JSON.stringify(streamInit));
+
+    while (this.queuedMessages.length > 0) {
+      this.sendXIMessage(this.queuedMessages.shift() ?? '');
     }
   }
   public sendXIMessage(text: string) {
-    if (this.firstXiMessageSent === 0) {
-      this.firstXiMessageSent = Date.now();
-    }
     if (this.isStreaming) {
       const formattedGptReply = text + ' ';
       const textMessage = {
         text: formattedGptReply,
         try_trigger_generation: true,
       };
-      if (this.xiWSClient.OPEN) {
+      if (this.xiWSClient.readyState === 1) {
         this.xiWSClient!.send(JSON.stringify(textMessage));
+      } else if (this.xiWSClient.readyState === 0) {
+        console.log('XI WebSocket client opening');
+        this.queuedMessages.push(text);
       } else {
-        console.log('XI WebSocket client is not open');
+        console.log('XI WebSocket client closing or closed, recording message');
         recordConversation(
           this.fileName,
           'failed assistant',
@@ -74,16 +74,13 @@ export class MediaStream {
     const eosMessage = {
       text: '',
     };
-    if (this.xiWSClient.OPEN) {
+    if (this.xiWSClient.readyState === 1) {
       this.xiWSClient!.send(JSON.stringify(eosMessage));
     }
   };
 
   private handleMessageFromXI(jsonString: string) {
     console.log('Received message from XI');
-    if (this.latency === 0) {
-      this.latency = Date.now() - this.firstXiMessageSent;
-    }
     if (this.isStreaming) {
       let response: XIWebSocketResponse = JSON.parse(jsonString);
       if (response.audio) {
@@ -102,5 +99,8 @@ export class MediaStream {
         console.log('Alignment info is available');
       }
     }
+  }
+  get isFinished() {
+    return this.cargo.isFinished;
   }
 }

@@ -1,0 +1,23 @@
+
+user: Hello?
+assistant: Hi, I'm calling
+user: 
+user: 
+assistant: Hello, I'm calling from a doctor's office to see if you have Adderall, 20 milligram instant release, in stock?
+assistant: Hello, I'm calling from a doctor's office to see if you have Adderall, 20 milligram instant release, in stock?
+GPT Lag: 581ms
+XI Lag: 1159ms
+user: 
+user: 
+assistant: Hello, I'm calling from a doctor's office to see if you have Adderall, 20 milligram instant release, in stock?
+
+user: 
+assistant: Hello?
+assistant: If the user does not respond or initiates a conversation, you can end the call by saying:
+
+"Thank you for your help. Goodbye."
+GPT Lag: 733ms
+XI Lag: 1003ms
+user: 
+user: 
+user: 

@@ -18,6 +18,8 @@ export const convertToWav = (
   const ffmpeg = spawn('ffmpeg', [
     '-i',
     'pipe:0',
+    '-filter:a',
+    'atempo=0.8',
     '-f',
     'wav',
     '-acodec',

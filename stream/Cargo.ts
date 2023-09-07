@@ -41,4 +41,13 @@ export class Cargo {
     console.log(`Added task at position: ${task.index}`);
     this.cargo.push(task);
   }
+  get isFinished() {
+    const tasks = Array.from(this.taskResults.values()).length;
+    console.log('tasks', tasks);
+    console.log('this.tasksCompleted', this.tasksCompleted);
+    const done =
+      Array.from(this.taskResults.values()).length === this.tasksCompleted;
+    console.log('done', done);
+    return Array.from(this.taskResults.values()).length === this.tasksCompleted;
+  }
 }

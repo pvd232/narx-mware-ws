@@ -1,0 +1,21 @@
+
+user: Hello?
+failed assistant:  see 
+failed assistant:  if 
+failed assistant:  you 
+failed assistant:  have 
+failed assistant:  Adderall, 20 
+failed assistant:  milligram 
+failed assistant:  instant 
+failed assistant:  release, 
+failed assistant:  in 
+failed assistant:  stock? 
+assistant: Hi, I'm calling from a doctor's office to see if you have Adderall, 20 milligram instant release, in stock?
+GPT Lag: 802ms
+XI Lag: 441ms
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE06ef2a143e4560c752d7c4616abb26b2
+user: Hello?
+assistant: Hello, I'm calling from a doctor's office to see if you have Adderall, 20 milligram instant release, in stock?
+user: No. We don't.
+assistant: Got it, thank you for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE0c204e061b22f83b9911a72a3dddec44

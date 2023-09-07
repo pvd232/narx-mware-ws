@@ -1,0 +1,4 @@
+
+user: Hello?
+assistant: Hi, I'm calling from a doctor's office to see if you have Adderall, 20 milligram instant release, in stock?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE130618db712294f9338d6df4997e5308

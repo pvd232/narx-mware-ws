@@ -1,0 +1,12 @@
+
+user: Hello?
+assistant: Hi, I was calling to see if you have a medication in stock?
+user: Sure. What's the medication?
+assistant: Hello, I'm calling to see if you have a medication in stock?
+user: What's the medication?
+assistant: Hello, I'm calling to see if you have a medication in stock?
+user: Yes.
+assistant: Hello, I'm calling to see if you have a medication in stock?
+user: What is it?
+assistant: Hello, I'm calling to see if you have Adderall, 20 milligram instant release, in stock?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REe68e908ac7f0867f003a92bc69c004a6
