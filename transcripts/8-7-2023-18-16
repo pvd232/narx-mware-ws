@@ -1,0 +1,12 @@
+
+user: Hello?
+assistant: Hi - I'm calling to see if you have a medication in stock?
+user: I'm gonna
+user: some medication.
+assistant: I'm sorry, I didn't catch that. Could you please repeat?
+assistant: I'm sorry, I didn't catch that. Can you please repeat?
+user: What's the medication?
+assistant: It's Adderall, 20 milligram instant release.
+user: Yeah. Someone called before you, and no, we don't have it in stock.
+assistant: Great, thanks. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REe42dcbc14b847924e5ef101507ae00c1

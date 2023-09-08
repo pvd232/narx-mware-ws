@@ -1,0 +1,21 @@
+
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REe23b2f7c961139f7ef39674a470b9ec2
+user: Hello. And thank you for calling Esco Pharmacy.
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: We are currently closed at this time.
+assistant: I'm sorry, I didn't catch that. Can you please repeat?
+user: Our regular business hours are from eight thirty AM to eight PM.
+assistant: Oh, I see. Thank you for letting me know. Can you please check if you have Adderall, 20 milligram instant release, in stock?
+user: Monday through Saturday, and ten AM to six PM on Sunday.
+assistant: I apologize for any confusion. Can you please check if you have Adderall, 20 milligram instant release, in stock?
+user: For more information about our hours and services,
+assistant: I apologize for any confusion. Can you please check if you have Adderall, 20 milligram instant release, in stock?
+user: you can visit us at escrow pharmacy dot com.
+assistant: I apologize for any confusion. Can you please check if you have Adderall, 20 milligram instant release, in stock?
+user: If you would like to leave a voice mail after the beep,
+assistant: Goodbye.
+user: Please include your name and phone number, and we'll respond to you as soon as possible.
+assistant: Goodbye.
+user: Thank you, and have a nice day.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE9cf87a25379a7fd5ae377e725f529086
+assistant: Thank you, you too. Goodbye.

@@ -28,6 +28,8 @@ import { recordConversation } from './stream/recordingConversation.ts';
 import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscription';
 const { Deepgram } = pkg;
 import { messages } from './helpers/messages.ts';
+import { spawn } from 'child_process';
+
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 let hostName = '';
@@ -45,7 +47,6 @@ const date = new Date();
 const dateString = `${date.getMonth()}-${date.getDate()}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
 let isOpen = false;
 fileName = `./transcripts/${dateString}`;
-const messagesClone = [...messages];
 app.ws('/*', {
   // Twilio client opens new connection
   open: async (ws: WebSocket<TwilioUserData>) => {
@@ -77,6 +78,7 @@ app.ws('/*', {
             model: 'nova',
             encoding: 'mulaw',
             sample_rate: 8000,
+            endpointing: 100,
           })
           .on('error', (e) => console.log('Deepgram transcription error', e))
           .on('transcriptReceived', async (message) => {
@@ -114,25 +116,40 @@ app.ws('/*', {
                     const text = part.choices[0]?.delta?.content || '';
                     completeResponse += text;
                     if (
-                      response.split(' ').length < 1 ||
-                      !text.includes(' ') ||
-                      !text.match(wordRegExp)
+                      response.toLowerCase().includes('press') &&
+                      text !== ''
                     ) {
-                      response += text;
-                      continue;
-                    } else if (response.toLowerCase().includes('press')) {
-                      const ivrResponse = response.split(' ').slice(-1)[0];
-                      stream.isStreaming = false;
-                      ivrDigits += ivrResponse;
+                      stream.stopStreaming();
+                      // stream.endStream();
+                      var grep = spawn('grep', ['ssh']);
+
+                      grep.on('exit', function (code, signal) {
+                        console.log(
+                          'child process terminated due to receipt of signal ' +
+                            signal
+                        );
+                      });
+
+                      grep.kill('SIGHUP');
+
+                      const ivrResponse = text;
+                      console.log('ivrResponse', ivrResponse);
                       twilioClient.calls(callSid!).update({
                         twiml: `<Response>
-                        <Play digits="${ivrDigits}"> </Play>
+                        <Play digits="${ivrResponse}"> </Play>
                         <Connect>
                           <Stream url="wss://${hostName}/"> </Stream>
                         </Connect>
                       </Response>`,
                       });
                       break;
+                    } else if (
+                      response.split(' ').length < 1 ||
+                      !text.includes(' ') ||
+                      !text.match(wordRegExp)
+                    ) {
+                      response += text;
+                      continue;
                     } else {
                       // Cached audio responses
                       // if (voiceFiles.has(response.toLowerCase())) {
@@ -157,21 +174,21 @@ app.ws('/*', {
                   });
 
                   if (response !== '') {
-                    if (response.toLowerCase().includes('press')) {
-                      const ivrResponse = response.split(' ').slice(-1)[0];
-                      stream.isStreaming = false;
-                      ivrDigits += ivrResponse;
-                      twilioClient.calls(callSid!).update({
-                        twiml: `<Response>
-                        <Play digits="${ivrDigits}"> </Play>
-                        <Connect>
-                          <Stream url="wss://${hostName}/"> </Stream>
-                        </Connect>
-                      </Response>`,
-                      });
-                    } else {
-                      stream.sendXIMessage(response);
-                    }
+                    // if (response.toLowerCase().includes('press')) {
+                    //   const ivrResponse = response.split(' ').slice(-1)[0];
+                    //   stream.stopStreaming();
+                    //   ivrDigits += ivrResponse;
+                    //   twilioClient.calls(callSid!).update({
+                    //     twiml: `<Response>
+                    //     <Play digits="${ivrDigits}"> </Play>
+                    //     <Connect>
+                    //       <Stream url="wss://${hostName}/"> </Stream>
+                    //     </Connect>
+                    //   </Response>`,
+                    //   });
+                    // } else {
+                    stream.sendXIMessage(response);
+                    // }
                   }
                   stream.endStream();
                   recordConversation(
@@ -270,7 +287,11 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const maheep = '+12102138521';
   const cvs1 = '+16464165752';
   const LICChemists = '+17183928049';
-  const phoneToCall = peter;
+  const windsor = '+12122471538';
+  const arrow = '+12122458469';
+  const jHeights = '+17187791444';
+  const esco = '+12122468169';
+  const phoneToCall = esco;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;

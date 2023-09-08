@@ -8,9 +8,9 @@ export class MediaStream {
   private xiWSClient: WebSocketClient;
   private cargo: Cargo;
   private taskIndex = 0;
-  public isStreaming = true;
   private fileName = '';
   private queuedMessages: string[] = [];
+  public isStreaming = true;
   constructor(xiWSClient: WebSocketClient, cargo: Cargo, fileName: string) {
     this.xiWSClient = xiWSClient;
     this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
@@ -33,8 +33,8 @@ export class MediaStream {
     const streamInit = {
       text: ' ',
       voice_settings: {
-        stability: 0.4,
-        similarity_boost: 0.75,
+        stability: 0.5,
+        similarity_boost: 0.7,
       },
       generation_config: {
         chunk_length_schedule: [120, 160, 250, 290],
@@ -88,19 +88,11 @@ export class MediaStream {
           task: convertToWav.bind(null, Buffer.from(response.audio, 'base64')),
           index: this.taskIndex++,
         });
-      } else {
-        console.log('No audio data in the response');
-        console.log('response', response);
-      }
-      if (response.isFinal) {
-        console.log('Generation is complete');
-      }
-      if (response.normalizedAlignment) {
-        console.log('Alignment info is available');
       }
     }
   }
-  get isFinished() {
-    return this.cargo.isFinished;
+  public stopStreaming() {
+    this.isStreaming = false;
+    this.cargo.cargo.kill();
   }
 }

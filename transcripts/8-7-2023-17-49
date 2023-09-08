@@ -1,0 +1,14 @@
+
+user: Pharmacy
+assistant: Hi - I'm calling to see if you have a medication in stock?
+user: pharmacy,
+assistant: Hi - I was just calling to see if you have a medication in stock?
+user: has done
+assistant: I'm sorry, I didn't catch that. Could you please repeat your response?
+user: I have
+assistant: What medication are you inquiring about?
+user: American cheese in stock.
+assistant: I apologize for the confusion, but I'm actually calling to inquire about a prescription medication. Specifically, I'm looking for Adderall, 20 milligram instant release. Do you have it in stock?
+user: Alright.
+assistant: Great, thanks.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE0cc425a0dccd749c0fdea2cdb7678310

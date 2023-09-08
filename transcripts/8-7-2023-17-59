@@ -1,0 +1,10 @@
+
+user: Hello. This is Diner.
+assistant: Hi, I'm calling to see if you have a medication in stock?
+user: Yes. I do have everything. What do you need?
+assistant: I'm calling to see if you have Adderall, 20 milligram instant release.
+user: Yeah. We're just making that one up.
+assistant: I'm sorry, I didn't catch that. Do you have Adderall, 20 milligram instant release in stock?
+user: No. I don't have a twenty milligrams. I'm sorry.
+assistant: Great, thanks. I'll have my doctor send the prescription shortly. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REf46f27bf33b9935df63a9caf42019ab2

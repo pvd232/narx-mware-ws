@@ -1,0 +1,10 @@
+
+user: Hello?
+assistant: Hi - I'm calling to see if you have a medication in stock?
+user: Which one?
+assistant: Hi - I'm calling to see if you have a medication in stock?
+user: Yes. Which which one?
+assistant: Hi - I'm calling to see if you have a medication in stock?
+user: Okay. It's broken. Bye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REfda8671903f6c599c5ce212a221fadfc
+assistant: Goodbye.

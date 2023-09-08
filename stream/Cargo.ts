@@ -8,6 +8,7 @@ export class Cargo {
   private streamSid: string;
   public taskResults: Map<number, any> = new Map();
   private tasksCompleted = 0;
+  public isStreaming = true;
   public cargo = async.cargoQueue((tasks: AsyncTask[], _callback) => {
     for (let i = 0; i < tasks.length; i++) {
       let task = tasks[i];
@@ -23,7 +24,9 @@ export class Cargo {
               .subarray(80);
             const wavB64 = wavBufferNoHeader.toString('base64');
             const responseMsg = getMediaMsg(wavB64, this.streamSid);
-            this.twilioWSConnection.send(JSON.stringify(responseMsg));
+            if (this.isStreaming) {
+              this.twilioWSConnection.send(JSON.stringify(responseMsg));
+            }
             this.tasksCompleted++;
           }
         }
@@ -38,16 +41,6 @@ export class Cargo {
     this.streamSid = streamSid;
   }
   public addTask(task: AsyncTask) {
-    console.log(`Added task at position: ${task.index}`);
     this.cargo.push(task);
-  }
-  get isFinished() {
-    const tasks = Array.from(this.taskResults.values()).length;
-    console.log('tasks', tasks);
-    console.log('this.tasksCompleted', this.tasksCompleted);
-    const done =
-      Array.from(this.taskResults.values()).length === this.tasksCompleted;
-    console.log('done', done);
-    return Array.from(this.taskResults.values()).length === this.tasksCompleted;
   }
 }

@@ -12,7 +12,7 @@ export const getGptReply = async (
     model: 'gpt-3.5-turbo',
     messages: messages,
     max_tokens: 50,
-    temperature: 0.3,
+    temperature: 0.35,
     top_p: 0.5,
     frequency_penalty: 1,
     presence_penalty: -1.0,
