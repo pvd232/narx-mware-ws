@@ -1,0 +1,20 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: Hello?
+failed assistant: Hi, 
+failed assistant:  I 
+failed assistant:  was 
+failed assistant:  just 
+failed assistant:  calling 
+failed assistant:  to 
+failed assistant:  if 
+failed assistant:  see 
+failed assistant:  you 
+failed assistant:  have 
+failed assistant:  a 
+failed assistant:  medication 
+failed assistant:  in 
+failed assistant:  stock? 
+assistant: Hi, I was just calling to see if you have a medication in stock?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE1c78d8b8d7b72bd1247bb8422ce5a038

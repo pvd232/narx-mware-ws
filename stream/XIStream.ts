@@ -3,14 +3,15 @@ import { XIWebSocketResponse } from '../types/interface/xi/XIWebSocketResponse.t
 import { Cargo } from './Cargo.ts';
 import { convertToWav } from '../helpers/convertToWav.ts';
 import { recordConversation } from './recordingConversation.ts';
+import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 
-export class MediaStream {
+export class XIStream {
   private xiWSClient: WebSocketClient;
   private cargo: Cargo;
   private taskIndex = 0;
   private fileName = '';
   private queuedMessages: string[] = [];
-  public isStreaming = true;
+  public streamingStatus = StreamingStatus.PHARM;
   constructor(xiWSClient: WebSocketClient, cargo: Cargo, fileName: string) {
     this.xiWSClient = xiWSClient;
     this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
@@ -22,12 +23,12 @@ export class MediaStream {
   }
   private prepareWebsockets() {
     console.log('XI WebSocket client connected');
-    this.initStream();
     this.xiWSClient.on('message', this.handleMessageFromXI.bind(this));
     this.xiWSClient.on('error', console.error);
     this.xiWSClient.on('close', function (_data) {
       console.log('xiWSClient WebSocket closed');
     });
+    this.initStream();
   }
   private initStream() {
     const streamInit = {
@@ -47,26 +48,33 @@ export class MediaStream {
       this.sendXIMessage(this.queuedMessages.shift() ?? '');
     }
   }
+  public reinitializeConnection() {
+    this.streamingStatus = StreamingStatus.GPT;
+    this.cargo.streamingStatus = StreamingStatus.GPT;
+    if (this.xiWSClient.readyState !== 1 && this.xiWSClient.readyState !== 0) {
+      this.xiWSClient = new WebSocketClient(
+        `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
+      );
+      this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
+      this.xiWSClient.on('connectFailed', (error: any) =>
+        console.log('XI WebSocket client connect error: ' + error.toString())
+      );
+    }
+  }
   public sendXIMessage(text: string) {
-    if (this.isStreaming) {
-      const formattedGptReply = text + ' ';
-      const textMessage = {
-        text: formattedGptReply,
-        try_trigger_generation: true,
-      };
-      if (this.xiWSClient.readyState === 1) {
-        this.xiWSClient!.send(JSON.stringify(textMessage));
-      } else if (this.xiWSClient.readyState === 0) {
-        console.log('XI WebSocket client opening');
-        this.queuedMessages.push(text);
-      } else {
-        console.log('XI WebSocket client closing or closed, recording message');
-        recordConversation(
-          this.fileName,
-          'failed assistant',
-          formattedGptReply
-        );
-      }
+    const formattedGptReply = text + ' ';
+    const textMessage = {
+      text: formattedGptReply,
+      try_trigger_generation: true,
+    };
+    if (this.xiWSClient.readyState === 1) {
+      this.xiWSClient!.send(JSON.stringify(textMessage));
+    } else if (this.xiWSClient.readyState === 0) {
+      console.log('XI WebSocket client opening');
+      this.queuedMessages.push(text);
+    } else {
+      console.log('XI WebSocket client closing or closed, recording message');
+      recordConversation(this.fileName, 'failed assistant', formattedGptReply);
     }
   }
   public endStream = () => {
@@ -81,18 +89,23 @@ export class MediaStream {
 
   private handleMessageFromXI(jsonString: string) {
     console.log('Received message from XI');
-    if (this.isStreaming) {
-      let response: XIWebSocketResponse = JSON.parse(jsonString);
-      if (response.audio) {
-        this.cargo.addTask({
-          task: convertToWav.bind(null, Buffer.from(response.audio, 'base64')),
-          index: this.taskIndex++,
-        });
-      }
+    let response: XIWebSocketResponse = JSON.parse(jsonString);
+    if (response.audio) {
+      this.cargo.addTask({
+        task: convertToWav.bind(null, Buffer.from(response.audio, 'base64')),
+        index: this.taskIndex++,
+      });
+    }
+    if (response.isFinal) {
+      this.cargo.xiStreamComplete = true;
     }
   }
-  public stopStreaming() {
-    this.isStreaming = false;
-    this.cargo.cargo.kill();
+  public closeConnection() {
+    this.streamingStatus = StreamingStatus.CLOSED;
+    this.cargo.streamingStatus = StreamingStatus.CLOSED;
+  }
+  public closingConnection() {
+    this.streamingStatus = StreamingStatus.CLOSING;
+    this.cargo.streamingStatus = StreamingStatus.CLOSING;
   }
 }

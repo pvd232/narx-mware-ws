@@ -1,0 +1,4 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE8d7b8620e134cfb9f1d86d22413ab58b

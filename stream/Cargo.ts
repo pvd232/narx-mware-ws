@@ -3,44 +3,80 @@ import { AsyncTask } from '../types/interface/AsyncTask.ts';
 import { TwilioUserData } from '../types/interface/twilio/TwilioUserData.ts';
 import { WebSocket } from 'uWebSockets.js';
 import { getMediaMsg } from '../helpers/getMediaMsg.ts';
+import { Base64String } from '../types/interface/xi/Base64String.ts';
+import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
+import { Stream } from 'stream';
 export class Cargo {
   private twilioWSConnection: WebSocket<TwilioUserData>;
   private streamSid: string;
   public taskResults: Map<number, any> = new Map();
   private tasksCompleted = 0;
-  public isStreaming = true;
-  public cargo = async.cargoQueue((tasks: AsyncTask[], _callback) => {
-    for (let i = 0; i < tasks.length; i++) {
-      let task = tasks[i];
-      task.task((err: any, result: Buffer) => {
-        if (err) {
-          console.error(`AsyncTask failed with error: ${err}`);
-        } else {
-          // Add the result to taskResults Map
-          this.taskResults.set(task.index, result);
-          while (this.taskResults.get(this.tasksCompleted) !== undefined) {
-            const wavBufferNoHeader = this.taskResults
-              .get(this.tasksCompleted)
-              .subarray(80);
-            const wavB64 = wavBufferNoHeader.toString('base64');
-            const responseMsg = getMediaMsg(wavB64, this.streamSid);
-            if (this.isStreaming) {
-              this.twilioWSConnection.send(JSON.stringify(responseMsg));
+  public xiStreamComplete = false;
+  public streamingStatus: StreamingStatus = StreamingStatus.PHARM;
+  public cargo = async.cargoQueue(
+    (tasks: AsyncTask[], callback: () => void) => {
+      for (let i = 0; i < tasks.length; i++) {
+        let task = tasks[i];
+        task.task((err: any, result: Buffer) => {
+          if (err) {
+            console.error(`AsyncTask failed with error: ${err}`);
+          } else {
+            // Add the result to taskResults Map
+            this.taskResults.set(task.index, result);
+            while (this.taskResults.get(this.tasksCompleted) !== undefined) {
+              const wavBufferNoHeader = this.taskResults
+                .get(this.tasksCompleted)
+                .subarray(80);
+              const wavB64 = wavBufferNoHeader.toString('base64');
+              this.sendTwilioMessage(wavB64);
+              this.tasksCompleted++;
             }
-            this.tasksCompleted++;
+            callback();
           }
-        }
-      });
-    }
-  }, 15); // Set concurrency to 15
+        });
+      }
+    },
+    15 // Set concurrency to 15
+  );
+
   constructor(
     twilioWSConnection: WebSocket<TwilioUserData>,
     streamSid: string
   ) {
     this.twilioWSConnection = twilioWSConnection;
     this.streamSid = streamSid;
+    this.cargo.drain(() => {
+      if (
+        this.cargo.idle() &&
+        this.tasksCompleted === this.taskResults.size &&
+        this.xiStreamComplete
+      ) {
+        console.log('All tasks completed');
+        this.sendTwilioMarkMessage();
+        this.taskResults.clear();
+        this.tasksCompleted = 0;
+      }
+    });
   }
   public addTask(task: AsyncTask) {
     this.cargo.push(task);
+  }
+  private sendTwilioMessage(message: Base64String) {
+    if (this.streamingStatus === StreamingStatus.GPT) {
+      const mediaMsg = getMediaMsg(message, this.streamSid);
+      this.twilioWSConnection.send(JSON.stringify(mediaMsg));
+    }
+  }
+  private sendTwilioMarkMessage() {
+    const markMsg = {
+      event: 'mark',
+      streamSid: this.streamSid,
+      mark: {
+        name: 'playback_complete',
+      },
+    };
+    if (this.streamingStatus === StreamingStatus.GPT) {
+      this.twilioWSConnection.send(JSON.stringify(markMsg));
+    }
   }
 }

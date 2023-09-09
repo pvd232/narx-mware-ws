@@ -1,0 +1,45 @@
+
+user: Blow.
+assistant: I'm sorry, I didn't catch that. How can I assist you today?
+user: Hello?
+failed assistant: Hi, 
+failed assistant:  I 
+failed assistant:  was 
+failed assistant:  just 
+failed assistant:  calling 
+failed assistant:  to 
+failed assistant:  see 
+failed assistant:  if 
+failed assistant:  you 
+failed assistant:  have 
+failed assistant:  a 
+failed assistant:  specific 
+failed assistant:  medication 
+failed assistant:  in 
+failed assistant:  stock. 
+assistant: Hi, I was just calling to see if you have a specific medication in stock.
+user: Hello?
+failed assistant: Hi, 
+failed assistant:  I 
+failed assistant:  was 
+failed assistant:  just 
+failed assistant:  calling 
+failed assistant:  to 
+failed assistant:  see 
+failed assistant:  if 
+failed assistant:  you 
+failed assistant:  have 
+failed assistant:  a 
+failed assistant:  specific 
+failed assistant:  medication 
+failed assistant:  in 
+failed assistant:  stock. 
+assistant: Hi, I was just calling to see if you have a specific medication in stock.
+user: Okay.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE96887b5cd5e714ddc2ff4f14b63c5355
+failed assistant: It's 
+failed assistant:  Adderall, 20 
+failed assistant:  milligram 
+failed assistant:  instant 
+assistant: It's Adderall, 20 milligram instant release.
+failed assistant:  release. 

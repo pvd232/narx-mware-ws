@@ -1,0 +1,7 @@
+
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE6f8b3325fe8e1479ba509777fb2ec186
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: Two dollars.
+assistant: I'm sorry, I didn't catch that. I was calling to see if you have a medication in stock.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE9af548471091c7b68ea6f4a4df5b7b15

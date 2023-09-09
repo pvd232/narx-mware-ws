@@ -1,9 +1,7 @@
 import OpenAI from 'openai';
-import { messages } from './messages.ts';
 import { CreateChatCompletionRequestMessage } from 'openai/resources/chat/index';
 export const getGptReply = async (
-  messages: Array<CreateChatCompletionRequestMessage>,
-  stream: boolean
+  messages: Array<CreateChatCompletionRequestMessage>
 ) => {
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -16,7 +14,7 @@ export const getGptReply = async (
     top_p: 0.5,
     frequency_penalty: 1,
     presence_penalty: -1.0,
-    stream: stream,
+    stream: true,
     stop: ['AI', 'fictional', 'fictitious', 'role'],
   });
   return chat;

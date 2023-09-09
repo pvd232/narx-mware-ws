@@ -1,0 +1,8 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: I'll have to go check.
+failed assistant: Great, 
+failed assistant:  thanks. 
+assistant: Great, thanks.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REce36a97a84c58df36855283121f28113
