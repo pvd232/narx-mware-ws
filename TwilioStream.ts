@@ -60,8 +60,6 @@ export class TwilioStream {
     );
   }
   private async handleMessageFromDeepgram(message: string) {
-    console.log('message', message);
-
     const data = JSON.parse(message);
     switch (data.type) {
       case 'Results':
@@ -88,11 +86,18 @@ export class TwilioStream {
           for await (const part of gptStream) {
             const text = part.choices[0]?.delta?.content || '';
             completeResponse += text;
-            if (response.toLowerCase().includes('press') && text !== '') {
-              // this.xiStream.endStream();
-
+            if (response.toLowerCase().includes('goodbye')) {
+              this.streamingStatus = StreamingStatus.CLOSING;
+              this.xiStream.closingConnection();
+            } else if (
+              response.toLowerCase().includes('press') &&
+              text !== ''
+            ) {
+              // Close out everything
+              this.streamingStatus = StreamingStatus.CLOSED;
+              this.xiStream.closeConnection();
               const ivrResponse = text;
-              console.log('ivrResponse', ivrResponse);
+              recordConversation(this.fileName, 'assistant', response);
               this.twilioClient.calls(this.callSid!).update({
                 twiml: `<Response>
                         <Play digits="${ivrResponse}"> </Play>
@@ -131,12 +136,7 @@ export class TwilioStream {
             'assistant',
             completeResponse,
             () => {
-              if (completeResponse.toLowerCase().includes('goodbye')) {
-                setTimeout(() => {
-                  this.closeConnection();
-                  return;
-                }, 5000);
-              }
+              console.log('Recording complete');
             }
           );
         } else {
@@ -154,9 +154,9 @@ export class TwilioStream {
   }
   public closeConnection() {
     this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
-    this.xiStream.endStream();
     if (this.streamingStatus !== StreamingStatus.CLOSED) {
       this.streamingStatus = StreamingStatus.CLOSED;
+
       this.twilioWSConnection.end();
     }
   }

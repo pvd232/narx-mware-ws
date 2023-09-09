@@ -9,17 +9,15 @@ export class XIStream {
   private xiWSClient: WebSocketClient;
   private cargo: Cargo;
   private taskIndex = 0;
-  private fileName = '';
   private queuedMessages: string[] = [];
   public streamingStatus = StreamingStatus.PHARM;
-  constructor(xiWSClient: WebSocketClient, cargo: Cargo, fileName: string) {
+  constructor(xiWSClient: WebSocketClient, cargo: Cargo) {
     this.xiWSClient = xiWSClient;
     this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
     this.xiWSClient.on('connectFailed', (error: any) =>
       console.log('XI WebSocket client connect error: ' + error.toString())
     );
     this.cargo = cargo;
-    this.fileName = fileName;
   }
   private prepareWebsockets() {
     console.log('XI WebSocket client connected');
@@ -51,6 +49,7 @@ export class XIStream {
   public reinitializeConnection() {
     this.streamingStatus = StreamingStatus.GPT;
     this.cargo.streamingStatus = StreamingStatus.GPT;
+    // IF the connection is not open or connecting, reinitialize the connection
     if (this.xiWSClient.readyState !== 1 && this.xiWSClient.readyState !== 0) {
       this.xiWSClient = new WebSocketClient(
         `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
@@ -68,13 +67,11 @@ export class XIStream {
       try_trigger_generation: true,
     };
     if (this.xiWSClient.readyState === 1) {
+      console.log('Sending message to XI');
       this.xiWSClient!.send(JSON.stringify(textMessage));
     } else if (this.xiWSClient.readyState === 0) {
       console.log('XI WebSocket client opening');
       this.queuedMessages.push(text);
-    } else {
-      console.log('XI WebSocket client closing or closed, recording message');
-      recordConversation(this.fileName, 'failed assistant', formattedGptReply);
     }
   }
   public endStream = () => {
@@ -98,6 +95,7 @@ export class XIStream {
     }
     if (response.isFinal) {
       this.cargo.xiStreamComplete = true;
+      this.taskIndex = 0;
     }
   }
   public closeConnection() {
@@ -106,6 +104,6 @@ export class XIStream {
   }
   public closingConnection() {
     this.streamingStatus = StreamingStatus.CLOSING;
-    this.cargo.streamingStatus = StreamingStatus.CLOSING;
+    this.cargo.closeConnection();
   }
 }

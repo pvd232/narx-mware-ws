@@ -3,6 +3,6 @@ import { TwilioMessage } from '../TwilioMessage.ts';
 
 export interface MediaEvent extends TwilioMessage {
   sequenceNumber: number;
-  media: MediaPayload;
   streamSid: string;
+  media: MediaPayload;
 }

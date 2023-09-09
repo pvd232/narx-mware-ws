@@ -29,6 +29,8 @@ import { TwilioStream } from './TwilioStream.ts';
 import { deepgramConfig } from './config/deepgramConfig.ts';
 import { StreamingStatus } from './types/enums/StreamingStatus.ts';
 import { getTranscriptFileName } from './getTranscriptFileName.ts';
+import { MarkEvent } from './types/interface/twilio/event/MarkEvent.ts';
+import { MarkName } from './types/enums/MarkName.ts';
 
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
@@ -71,8 +73,7 @@ app.ws('/*', {
             new WebSocketClient(
               `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
             ),
-            new Cargo(ws, twilioStartMsg.streamSid),
-            fileName
+            new Cargo(ws, twilioStartMsg.streamSid)
           ),
           messages,
           hostName,
@@ -86,8 +87,16 @@ app.ws('/*', {
         twilioStream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
         break;
       case MessageEvent.Mark:
+        const twilioMarkEvent = msg as MarkEvent;
+        console.log('twilioMarkEvent', twilioMarkEvent);
         console.log('Mark');
-        twilioStream.streamingStatus = StreamingStatus.PHARM;
+        if (twilioMarkEvent.mark.name === MarkName.COMPLETE) {
+          console.log('Mark Complete');
+          twilioStream.streamingStatus = StreamingStatus.PHARM;
+        } else if (twilioMarkEvent.mark.name === MarkName.TERMINATE) {
+          console.log('Mark Terminate');
+          twilioStream.closeConnection();
+        }
         break;
       case MessageEvent.Stop:
         console.log(`Call Has Ended`);

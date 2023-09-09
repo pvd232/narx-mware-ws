@@ -6,6 +6,7 @@ import { getMediaMsg } from '../helpers/getMediaMsg.ts';
 import { Base64String } from '../types/interface/xi/Base64String.ts';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 import { Stream } from 'stream';
+import { MarkName } from '../types/enums/MarkName.ts';
 export class Cargo {
   private twilioWSConnection: WebSocket<TwilioUserData>;
   private streamSid: string;
@@ -18,6 +19,7 @@ export class Cargo {
       for (let i = 0; i < tasks.length; i++) {
         let task = tasks[i];
         task.task((err: any, result: Buffer) => {
+          console.log(`Task ${task.index} completed`);
           if (err) {
             console.error(`AsyncTask failed with error: ${err}`);
           } else {
@@ -31,8 +33,8 @@ export class Cargo {
               this.sendTwilioMessage(wavB64);
               this.tasksCompleted++;
             }
-            callback();
           }
+          callback();
         });
       }
     },
@@ -52,9 +54,11 @@ export class Cargo {
         this.xiStreamComplete
       ) {
         console.log('All tasks completed');
-        this.sendTwilioMarkMessage();
+
         this.taskResults.clear();
         this.tasksCompleted = 0;
+        this.xiStreamComplete = false;
+        this.sendTwilioMarkMessage();
       }
     });
   }
@@ -62,7 +66,11 @@ export class Cargo {
     this.cargo.push(task);
   }
   private sendTwilioMessage(message: Base64String) {
-    if (this.streamingStatus === StreamingStatus.GPT) {
+    if (
+      this.streamingStatus === StreamingStatus.GPT ||
+      this.streamingStatus === StreamingStatus.CLOSING
+    ) {
+      console.log('Sending Twilio Message');
       const mediaMsg = getMediaMsg(message, this.streamSid);
       this.twilioWSConnection.send(JSON.stringify(mediaMsg));
     }
@@ -72,11 +80,21 @@ export class Cargo {
       event: 'mark',
       streamSid: this.streamSid,
       mark: {
-        name: 'playback_complete',
+        name:
+          this.streamingStatus === StreamingStatus.CLOSING
+            ? MarkName.TERMINATE
+            : MarkName.COMPLETE,
       },
     };
-    if (this.streamingStatus === StreamingStatus.GPT) {
+    if (
+      this.streamingStatus === StreamingStatus.GPT ||
+      this.streamingStatus === StreamingStatus.CLOSING
+    ) {
       this.twilioWSConnection.send(JSON.stringify(markMsg));
     }
+  }
+  public closeConnection() {
+    this.streamingStatus = StreamingStatus.CLOSED;
+    this.cargo.kill();
   }
 }
