@@ -1,0 +1,12 @@
+
+user: Thank you for calling Walgreens. To speak with a pharmacist, press five.
+assistant: press 
+assistant: press 5
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REe174ce994369d0abec87c61495c02c88
+user: Thank you for calling Walgreens. To speak with a pharmacist, press five.
+assistant: press 
+assistant: press 5
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE5085502347cb97c0513a03c28af8eb6d
+user: Sorry.
+assistant:  Press 
+assistant: No problem. Let's try again. Press 5

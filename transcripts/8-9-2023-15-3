@@ -1,0 +1,6 @@
+
+user: Welcome to Walgreens. To speak with a pharmacist, press five.
+assistant: press
+assistant: press 
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE8b8c200a0c1e7e2c06b7ea8d2ffdb8e3
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REb7d5a020c9693ebfde70d2cd1fb141c5

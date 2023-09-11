@@ -104,6 +104,6 @@ export class XIStream {
   }
   public closingConnection() {
     this.streamingStatus = StreamingStatus.CLOSING;
-    this.cargo.closeConnection();
+    this.cargo.streamingStatus = StreamingStatus.CLOSING;
   }
 }

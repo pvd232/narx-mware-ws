@@ -1,0 +1,32 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: Who's calling?
+assistant: This is [Your Name]'s parent calling on behalf of my daughter.
+user: Who's calling?
+assistant: This is [Your Name]'s parent calling on behalf of my daughter.
+user: Who?
+assistant: I'm sorry, I didn't catch that. This is [Your Name]'s parent calling on behalf of my daughter.
+user: What is your name?
+assistant: My name is [Your Name]'s parent. I'm calling on behalf of my daughter.
+user: They would never ask who, anyways.
+assistant: I apologize for any confusion. How can I assist you today?
+user: No. That's my name.
+assistant: I apologize for the misunderstanding. How can I assist you today?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE8a24fdadb3921df980f3f9ea3eb9c9c5
+user: Hello?
+assistant: Hello, I was just calling to see if you have Adderall, 20 milligram instant release, in stock.
+user: What's the medication?
+assistant: It's Adderall, 20 milligram instant release.
+user: And who's calling?
+assistant: This is [Your Name]'s parent calling on behalf of my daughter.
+user: Yeah. It's gonna give it a name.
+assistant: I apologize for any confusion. This is [Your Name]'s parent calling on behalf of my daughter.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE59bc051df1322bb8062914e76f3bbd82
+user: Hello?
+assistant: Hello, I was just calling to see if you have Adderall, 20 milligram instant release, in stock.
+user: I'll have to go check.
+assistant: Great, thanks.
+user: No. I don't think we do.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE74998e13ec2538f15c0a65dbccbdb6f1

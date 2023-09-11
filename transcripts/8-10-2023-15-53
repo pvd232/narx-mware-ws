@@ -1,0 +1,23 @@
+
+user: Oh,
+assistant:  press 
+assistant: Hello. And thank you for calling Suzy's Pharmacy. If you are a provider, please press 1
+user: Pharmacy,
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: What's the medication you're looking for?
+assistant: It's Adderall, 20 milligram instant release.
+user: Sorry. What was that?
+assistant: It's Adderall, 20 milligram instant release.
+user: I'm sorry. Can you say that one more time?
+assistant: Sure, it's Adderall, 20 milligram instant release.
+user: Okay. Let me go check
+assistant: Great, thanks.
+user: Hey. Yeah. We have it in stock.
+assistant: Ok great, I'll have my prescription sent over shortly. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE0ba9ac70909ac814a0292fc1107e0ffb
+user: Hello. Welcome to Walgreens.
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: To speak with a pharmacist, press five.
+assistant: Press 
+assistant: Press 5
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE896ef19701b5403cab0a7ba9af1bd4e2

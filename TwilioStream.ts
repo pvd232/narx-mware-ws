@@ -11,6 +11,7 @@ import { getGptReply } from './helpers/getGptReply.ts';
 import { Stream } from 'openai/streaming';
 import { Twilio } from 'twilio';
 import { StreamingStatus } from './types/enums/StreamingStatus.ts';
+import { isNumber } from './utils/isNumber.ts';
 
 export class TwilioStream {
   private twilioClient: Twilio;
@@ -86,12 +87,14 @@ export class TwilioStream {
           for await (const part of gptStream) {
             const text = part.choices[0]?.delta?.content || '';
             completeResponse += text;
+            // test is text is an integer using parseInt
+
             if (response.toLowerCase().includes('goodbye')) {
               this.streamingStatus = StreamingStatus.CLOSING;
               this.xiStream.closingConnection();
             } else if (
               response.toLowerCase().includes('press') &&
-              text !== ''
+              isNumber(text)
             ) {
               // Close out everything
               this.streamingStatus = StreamingStatus.CLOSED;

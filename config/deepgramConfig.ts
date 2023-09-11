@@ -5,5 +5,5 @@ export const deepgramConfig = {
   model: 'nova',
   encoding: 'mulaw',
   sample_rate: 8000,
-  endpointing: 100,
+  endpointing: 10,
 };
