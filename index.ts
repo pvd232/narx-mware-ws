@@ -13,7 +13,6 @@ import path from 'path';
 import url from 'url';
 import pkg from '@deepgram/sdk';
 import findConfig from 'find-config';
-import { XIStream } from './stream/XIStream.ts';
 import { TwilioUserData } from './types/interface/twilio/TwilioUserData.ts';
 import { MessageEvent } from './types/enums/MessageEvent.ts';
 import { StartEvent } from './types/interface/twilio/event/StartEvent.ts';
@@ -22,15 +21,15 @@ import { convertAudio } from './helpers/convertAudio.ts';
 import { Cargo } from './stream/Cargo.ts';
 // import { respondWithVoice } from './stream/responseWithVoice.ts';
 import { recordConversation } from './stream/recordingConversation.ts';
-import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscription';
-const { Deepgram } = pkg;
 import { messages } from './config/messages.ts';
-import { TwilioStream } from './TwilioStream.ts';
+import { TwilioStream } from './stream/TwilioStream.ts';
 import { deepgramConfig } from './config/deepgramConfig.ts';
 import { StreamingStatus } from './types/enums/StreamingStatus.ts';
 import { getTranscriptFileName } from './getTranscriptFileName.ts';
 import { MarkEvent } from './types/interface/twilio/event/MarkEvent.ts';
 import { MarkName } from './types/enums/MarkName.ts';
+import { XIStream } from './stream/XIStream.ts';
+const { Deepgram } = pkg;
 
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
@@ -95,7 +94,7 @@ app.ws('/*', {
           twilioStream.streamingStatus = StreamingStatus.PHARM;
         } else if (twilioMarkEvent.mark.name === MarkName.TERMINATE) {
           console.log('Mark Terminate');
-          twilioStream.closeConnection();
+          setTimeout(() => twilioStream.closeConnection(), 5000);
         }
         break;
       case MessageEvent.Stop:
@@ -151,7 +150,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const arrow = '+12122458469';
   const jHeights = '+17187791444';
   const esco = '+12122468169';
-  const phoneToCall = peter;
+  const phoneToCall = jHeights;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;

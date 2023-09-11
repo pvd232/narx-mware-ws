@@ -19,7 +19,7 @@ export const convertToWav = (
     '-i',
     'pipe:0',
     '-filter:a',
-    'atempo=0.825',
+    'atempo=0.85',
     '-f',
     'wav',
     '-acodec',

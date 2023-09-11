@@ -1,17 +1,17 @@
 import { WebSocket } from 'uWebSockets.js';
-import { TwilioUserData } from './types/interface/twilio/TwilioUserData';
+import { TwilioUserData } from '../types/interface/twilio/TwilioUserData.ts';
 import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscription';
-import { XIStream } from './stream/XIStream.ts';
+import { XIStream } from './XIStream.ts';
 import {
   ChatCompletionChunk,
   ChatCompletionMessage,
 } from 'openai/resources/chat';
-import { recordConversation } from './stream/recordingConversation.ts';
-import { getGptReply } from './helpers/getGptReply.ts';
+import { recordConversation } from './recordingConversation.ts';
+import { getGptReply } from '../helpers/getGptReply.ts';
 import { Stream } from 'openai/streaming';
 import { Twilio } from 'twilio';
-import { StreamingStatus } from './types/enums/StreamingStatus.ts';
-import { isNumber } from './utils/isNumber.ts';
+import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
+import { isNumber } from '../utils/isNumber.ts';
 
 export class TwilioStream {
   private twilioClient: Twilio;
@@ -159,7 +159,6 @@ export class TwilioStream {
     this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
     if (this.streamingStatus !== StreamingStatus.CLOSED) {
       this.streamingStatus = StreamingStatus.CLOSED;
-
       this.twilioWSConnection.end();
     }
   }

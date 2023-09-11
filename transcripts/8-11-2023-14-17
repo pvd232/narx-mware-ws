@@ -1,0 +1,15 @@
+
+user: Hello, and thank you for calling Esco pharmacy.
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: Please visit our website at one two three escalab dot com.
+assistant: I'm sorry, I didn't catch that. Do you have a pharmacist available?
+user: For on our website under the tab covid nineteen.
+assistant: I'm sorry, I didn't catch that. Do you have a pharmacist available?
+user: To our newsletters to get updates for when they are available in store.
+assistant: I'm sorry, I didn't catch that. Do you have a pharmacist available?
+user: To reach the pharmacy department,
+assistant: press 
+assistant: press 2
+user: All of our agents are busy helping other customers. At the tone, please record your message.
+assistant: Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REf2c5ead5e97adcbe64eedd1d3e62249e

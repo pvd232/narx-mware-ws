@@ -1,0 +1,10 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: What's the medication you're looking for?
+assistant: It's Adderall, 20 milligram instant release.
+user: Let me check. Hold on.
+assistant: Great, thanks.
+user: No. I don't think we have it in stock.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE1c587186d96e6dfb24552a4471c30079
