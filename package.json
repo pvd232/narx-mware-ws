@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "@azure/openai": "^1.0.0-beta.5",
     "@deepgram/sdk": "^2.4.0",
     "@google-cloud/speech": "^6.0.1",
     "@types/async": "^3.2.20",

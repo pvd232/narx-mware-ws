@@ -5,7 +5,6 @@ import { WebSocket } from 'uWebSockets.js';
 import { getMediaMsg } from '../helpers/getMediaMsg.ts';
 import { Base64String } from '../types/interface/xi/Base64String.ts';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
-import { Stream } from 'stream';
 import { MarkName } from '../types/enums/MarkName.ts';
 export class Cargo {
   private twilioWSConnection: WebSocket<TwilioUserData>;

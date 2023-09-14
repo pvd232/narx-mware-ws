@@ -12,6 +12,7 @@ import { Stream } from 'openai/streaming';
 import { Twilio } from 'twilio';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 import { isNumber } from '../utils/isNumber.ts';
+import { getGptReplyAzure } from '../helpers/getGptReplyAzure.ts';
 
 export class TwilioStream {
   private twilioClient: Twilio;
@@ -77,9 +78,7 @@ export class TwilioStream {
           console.log('pharmReply', pharmReply);
           recordConversation(this.fileName, 'user', pharmReply);
 
-          const gptStream: Stream<ChatCompletionChunk> = await getGptReply(
-            this.messages
-          );
+          const gptStream = await getGptReplyAzure(this.messages);
 
           let response = '';
           let completeResponse = '';
@@ -158,7 +157,7 @@ export class TwilioStream {
     this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
     if (this.streamingStatus !== StreamingStatus.CLOSED) {
       this.streamingStatus = StreamingStatus.CLOSED;
-      this.twilioWSConnection.end();
+      this.twilioWSConnection.end(1000);
     }
   }
 }

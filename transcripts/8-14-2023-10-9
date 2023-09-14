@@ -1,0 +1,12 @@
+
+user: Hello. And thank you for calling Walgreens.
+assistant: I'm sorry, I didn't catch that.
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: Bye.
+assistant: I'm sorry, I think we got disconnected. Can you please help me check if you have Adderall, 20 milligram instant release in stock?
+user: Yes. Hold on.
+assistant: Great, thanks.
+user: No. We don't have any
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REb2cc61eea17573b3d27c432de2f1b677
