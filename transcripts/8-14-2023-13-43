@@ -1,0 +1,11 @@
+
+user: Hello, and thank you for calling Esco pharmacy.
+assistant: 
+user: For COVID nineteen vaccine and testing,
+assistant: I'm sorry, I didn't catch that. Could you please repeat the options?
+user: please press six.
+assistant: I'm sorry, I cannot press any buttons as I am an 
+user: To book an appointment,
+assistant: I'm sorry, I cannot book appointments as I am not authorized to do so. However, I was calling to see if you have a medication in stock.
+user: please visit our website at one two three escalab dot com.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REc807cc30ba5cc8a7980bbe5880bad978

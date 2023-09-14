@@ -39,6 +39,7 @@ let twilioClient: Twilio;
 
 let hostName = '';
 let callSid = '';
+let streamSid = '';
 const fileName = getTranscriptFileName();
 
 const app = uWS.App();
@@ -62,7 +63,7 @@ app.ws('/*', {
 
       case MessageEvent.Start:
         console.log(`Starting Media Stream ${msg.streamSid}`);
-
+        streamSid = msg.streamSid;
         const twilioStartMsg = msg as StartEvent;
         twilioStream = new TwilioStream(
           twilioClient!,
@@ -87,11 +88,12 @@ app.ws('/*', {
         break;
       case MessageEvent.Mark:
         const twilioMarkEvent = msg as MarkEvent;
-        console.log('twilioMarkEvent', twilioMarkEvent);
         console.log('Mark');
         if (twilioMarkEvent.mark.name === MarkName.COMPLETE) {
           console.log('Mark Complete');
-          twilioStream.streamingStatus = StreamingStatus.PHARM;
+          if (twilioStream.streamingStatus !== StreamingStatus.IVR) {
+            twilioStream.streamingStatus = StreamingStatus.PHARM;
+          }
         } else if (twilioMarkEvent.mark.name === MarkName.TERMINATE) {
           console.log('Mark Terminate');
           setTimeout(() => twilioStream.closeConnection(), 5000);
@@ -150,7 +152,9 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const arrow = '+12122458469';
   const jHeights = '+17187791444';
   const esco = '+12122468169';
-  const phoneToCall = peter;
+  const apotheco = '+12128890022';
+  const naturesCure = '+12125459393';
+  const phoneToCall = mom;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -179,6 +183,13 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
       res.end('Call completed');
     });
   }
+});
+app.post('/terminate_call', async (res: HttpResponse, req: HttpRequest) => {
+  if (twilioStream) {
+    twilioStream.closeConnection();
+  }
+  /* If we were aborted, you cannot respond */
+  res.end('Call terminated');
 });
 app.post('/record', async (res: HttpResponse, req: HttpRequest) => {
   res.onAborted(() => {

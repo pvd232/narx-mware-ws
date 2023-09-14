@@ -13,6 +13,7 @@ import { Twilio } from 'twilio';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 import { isNumber } from '../utils/isNumber.ts';
 import { getGptReplyAzure } from '../helpers/getGptReplyAzure.ts';
+import { detectIVR } from '../helpers/detectIVR.ts';
 
 export class TwilioStream {
   private twilioClient: Twilio;
@@ -26,6 +27,7 @@ export class TwilioStream {
   private callSid: string;
   private fileName: string;
   private regExpresion = new RegExp(/[a-z]/i);
+  private isFirstMessage = true;
 
   constructor(
     twilioClient: Twilio,
@@ -41,7 +43,6 @@ export class TwilioStream {
     this.twilioWSConnection = twilioWSConnection;
     this.deepgramStream = deepgramStream;
     this.deepgramStream.on('open', this.prepareWebsockets.bind(this));
-
     this.xiStream = xiStream;
     this.messages = messages;
     this.hostName = hostName;
@@ -66,10 +67,22 @@ export class TwilioStream {
     switch (data.type) {
       case 'Results':
         const pharmReply: string = data.channel.alternatives[0].transcript;
-        if (pharmReply !== '') {
-          this.streamingStatus = StreamingStatus.GPT;
+        if (
+          pharmReply !== '' &&
+          this.streamingStatus !== StreamingStatus.CLOSED
+        ) {
           this.xiStream.reinitializeConnection();
-
+          if (this.isFirstMessage) {
+            this.isFirstMessage = false;
+            if (detectIVR(pharmReply)) {
+              this.streamingStatus = StreamingStatus.IVR;
+            } else {
+              this.streamingStatus = StreamingStatus.GPT;
+            }
+          } else {
+            this.streamingStatus = StreamingStatus.GPT;
+          }
+          console.log('this.streamingStatus', this.streamingStatus);
           this.messages.push({
             role: 'user',
             content: pharmReply,
@@ -78,7 +91,15 @@ export class TwilioStream {
           console.log('pharmReply', pharmReply);
           recordConversation(this.fileName, 'user', pharmReply);
 
-          const gptStream = await getGptReplyAzure(this.messages);
+          const gptStream = await (async () => {
+            if (this.streamingStatus === StreamingStatus.IVR) {
+              const chat = await getGptReply(this.messages);
+              return chat;
+            } else {
+              const chat = await getGptReplyAzure(this.messages);
+              return chat;
+            }
+          })();
 
           let response = '';
           let completeResponse = '';
@@ -147,7 +168,8 @@ export class TwilioStream {
   }
   public handleMessageFromTwilio(message: string) {
     if (
-      this.streamingStatus === StreamingStatus.PHARM &&
+      (this.streamingStatus === StreamingStatus.PHARM ||
+        this.streamingStatus === StreamingStatus.IVR) &&
       this.deepgramStream.getReadyState() === 1
     ) {
       this.deepgramStream.send(Buffer.from(message, 'base64'));
@@ -157,6 +179,7 @@ export class TwilioStream {
     this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
     if (this.streamingStatus !== StreamingStatus.CLOSED) {
       this.streamingStatus = StreamingStatus.CLOSED;
+      this.xiStream.closeConnection();
       this.twilioWSConnection.end(1000);
     }
   }

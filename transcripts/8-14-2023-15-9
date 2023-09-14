@@ -1,0 +1,49 @@
+
+user: You for calling CVS Pharmacy, a HealthHub location at
+assistant: ''
+user: sixteen nineteen Broadway on the corner of West forty ninth Street, New York, New York,
+assistant: ''
+user: If you're a health care provider or calling from a doctor's office,
+assistant: ''
+user: press two now.
+assistant: ''
+user: Are you calling for the pharmacy?
+assistant: Yes
+user: Say yes or press one.
+assistant: press 
+assistant: press 1
+user: Okay. Refills. Please
+assistant: I'm sorry, I didn't catch that. Could you please repeat the options?
+user: say or enter the six to seven digit
+assistant: I'm sorry, I think there might be some confusion. I was calling to see if you have a medication in stock. Specifically, I'm looking for Adderall, 20 milligram instant release. Do you have that in stock?
+user: Sorry.
+assistant: No problem. Do you have Adderall, 20 milligram instant release in stock?
+user: Do you have your most recently prescribed
+assistant: I'm sorry, I didn't catch that. Could you please repeat your response?
+user: Sorry. I still didn't get that. Do you have
+assistant: I'm sorry, it seems like there might be some connection issues. Let me clarify, I'm calling to see if you have Adderall, 20 milligram instant release in stock. Can you please check if you have it available?
+user: recently prescribed medication with the prescription label affixed?
+assistant: I apologize for any confusion, but I'm not calling about a refill or a prescription label. I'm calling to see if you have Adderall, 20 milligram instant release in stock. Can you please check if you have it available?
+user: Sorry. We seem to be having trouble.
+assistant: No problem, let's try again. I'm calling to see if you have Adderall, 20 milligram instant release in stock. Can you please check if you have it available?
+user: Okay. No problem. For further assistance, plea
+assistant: I'm sorry, I didn't catch that. Could you please repeat your response?
+user: Sorry. One moment while I
+assistant: Sure, take your time.
+user: transfer you to the pharmacy for assistance.
+assistant: Thank you, I appreciate it.
+user: Find out more and schedule ahead at
+assistant: I'm sorry, I didn't catch that. Could you please repeat your response?
+user: c v s dot com slash vaccines, restrictions apply.
+assistant: I understand, but I'm actually calling to see if you have Adderall, 20 milligram instant release in stock. Can you please check if you have it available?
+user: Hello. CVS. How can I help?
+assistant: Hi, I was just calling to see if you have a medication in stock. Specifically, I'm looking for Adderall, 20 milligram instant release. Do you have that in stock?
+user: Hello, CVS. How can I help you?
+assistant: Hi, I'm calling to see if you have Adderall, 20 milligram instant release in stock. Can you please check if you have it available?
+user: What's the medication?
+assistant: The medication I'm inquiring about is Adderall, 20 milligram instant release.
+user: Unfortunately, it's in back order.
+assistant: I understand, thank you for checking. Goodbye.
+user: It's in back order.
+assistant: Understood, thank you for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE06d072e81c49b1ad58167dfbb33be341

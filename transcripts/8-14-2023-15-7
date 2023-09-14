@@ -1,0 +1,29 @@
+
+user: You for calling CVS Pharmacy, a HealthHub location at
+assistant: ''
+user: Sixteen nineteen Broadway on the corner of West forty ninth Street, New York, New York,
+assistant: ''
+user: If you're a health care provider or calling from a doctor's office,
+assistant: ''
+user: press two now.
+user: Are you calling for the pharmacy?
+assistant: Yes
+assistant: ''
+user: Say yes or press one. Okay.
+assistant: press 
+assistant: press 1
+user: Okay. Refills.
+assistant: I'm sorry, I didn't catch that. I was calling to see if you have a medication in stock.
+user: Sorry.
+assistant: No problem. I was calling to see if you have Adderall, 20 milligram instant release, in stock.
+user: Please say or enter the six to seven digit
+assistant: I'm sorry, I think there might have been a misunderstanding. I was calling to speak with a pharmacist to see if you have Adderall, 20 milligram instant release, in stock.
+user: Sorry. I still didn't get that.
+assistant: I'm calling to see if you have Adderall, 20 milligram instant release, in stock.
+user: Please say or enter the six
+assistant: Sure, thank you.
+user: Sorry. We seem to be having trouble.
+assistant: I'm sorry, could you please clarify what kind of trouble you are experiencing?
+user: For further assistance, please press
+assistant: I'm sorry, I don't think that option will help me speak with a pharmacist. Could you please transfer me to the pharmacy department?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE42d76b2603dd0343f3eb15c997b90ad5

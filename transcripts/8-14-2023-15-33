@@ -1,0 +1,14 @@
+
+user: Thank you for calling Apotheco Pharmacy. If you know the extension of the person you are trying to reach,
+assistant: ''
+user: may dial it at any time.
+assistant: ''
+user: Otherwise, please wait while we connect you to the next available agent.
+assistant: ''
+user: Apartmentville pharmacy. How can I help you?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: We're a dermatologist
+assistant: I'm sorry, I didn't catch that.
+user: Pharmacy only. We only carry dermatology drug. We are a dermatology pharmacy
+assistant: I apologize for the confusion. Thank you for clarifying that. Have a good day. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE7335067e5ac87142b02dbda137528f48

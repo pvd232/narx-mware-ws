@@ -1,0 +1,49 @@
+
+user: Hello, and thank you for calling Esco pharmacy.
+assistant: 
+user: For COVID nineteen vaccine and testing,
+assistant: 
+user: please press six.
+assistant: 
+user: To book an appointment,
+assistant: 
+user: please visit our website at one two three escalab dot com.
+assistant: 
+user: For any COVID nineteen status inquiry,
+assistant: 
+user: please refer to the status inquiry section on our
+user: website under the tab covid nineteen
+assistant: 
+assistant: 
+user: If you are looking for the n ninety five masks,
+assistant: 
+user: please visit our website and subscribe to our newsletters to get updates
+assistant: 
+user: or when they are available in store
+assistant: 
+user: For store hours,
+assistant: 
+user: please press one.
+assistant: 
+user: For Spanish,
+assistant: 
+user: please press two.
+assistant: 
+user: To reach the pharmacy department,
+assistant: 
+user: please press three.
+assistant: press 
+assistant: press 3
+user: Please hold while I try to connect you.
+assistant: Sure, thank you.
+user: Good afternoon. Escal Pharmacy. How may I assist you?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: I'm sorry. Hello?
+assistant: Yes, I was calling to see if you have a medication in stock.
+user: I'm sorry. Any medication that you are looking for, you will have to
+assistant: I'm sorry, I didn't catch that. Could you please clarify?
+user: go on to echo pharmacy dot com.
+assistant: I apologize for the confusion, but I was actually hoping to speak with someone in the pharmacy department to check if you have a specific medication in stock. Could you please transfer me to the pharmacy department?
+user: And click on
+assistant: I'm sorry, I didn't catch that. Could you please transfer me to the pharmacy department?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE321669dbc62423904f626bd1e19119bc

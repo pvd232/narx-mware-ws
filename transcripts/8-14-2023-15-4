@@ -1,0 +1,10 @@
+
+user: Thank you for calling CVS Pharmacy, a HealthHub location at
+assistant: Do not reply to the IVR introduction.
+user: Sixteen nineteen Broadway on the corner of West forty ninth Street,
+assistant: Do not reply to the IVR introduction.
+user: New York, New York. You're a health provider or calling from a doctor's office
+assistant: Do not reply to the IVR introduction.
+user: press two now.
+assistant: Do not reply to the IVR introduction.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REc447814a773fa71e9ef19d1dd7ce242c

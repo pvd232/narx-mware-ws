@@ -2,7 +2,6 @@ import WebSocketClient from 'ws';
 import { XIWebSocketResponse } from '../types/interface/xi/XIWebSocketResponse.ts';
 import { Cargo } from './Cargo.ts';
 import { convertToWav } from '../helpers/convertToWav.ts';
-import { recordConversation } from './recordingConversation.ts';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 
 export class XIStream {
@@ -100,7 +99,7 @@ export class XIStream {
   }
   public closeConnection() {
     this.streamingStatus = StreamingStatus.CLOSED;
-    this.cargo.streamingStatus = StreamingStatus.CLOSED;
+    this.cargo.closeConnection();
   }
   public closingConnection() {
     this.streamingStatus = StreamingStatus.CLOSING;

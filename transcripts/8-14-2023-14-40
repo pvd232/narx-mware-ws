@@ -1,0 +1,23 @@
+
+user: Hello, and thank you for calling Esco pharmacy.
+user: For COVID nineteen vaccine and testing,
+assistant: 
+user: please press six.
+assistant: press 
+assistant: press 1
+assistant: 
+user: Hello, and thank you for calling Esco Pharmacy.
+assistant: For COVID nineteen vaccine and testing, please press six. For pharmacy, press three. For store hours and location, press four. To repeat these options, press zero.
+user: Our regular business hours are eight thirty AM to
+user: PM Monday to Saturday.
+assistant: press 
+assistant: press 3
+assistant: press 
+assistant: press 3
+user: Sunday,
+assistant: I'm sorry, I didn't catch that. Please repeat your request.
+user: w dot Tesco pharmacy dot n y c.
+assistant: I'm sorry, that is not a valid response to the options I provided. If you are calling to inquire about a specific medication, please press three.
+user: If you would like to leave a voice mail,
+assistant: Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REf1319d3961fa96f7fa3e8d8ff47e1cfe
