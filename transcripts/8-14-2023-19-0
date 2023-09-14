@@ -1,0 +1,7 @@
+
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE654887e8e9fb1cd1e1a88e2c9518cce4
+user: Hello?
+assistant: Hi,
+GPT Time: 840
+user: No. We don't.
+assistant: I'm sorry, I didn't catch that.

@@ -1,0 +1,9 @@
+
+user: Pharmacy,
+assistant: Hello,
+GPT Time: 1105
+user: No. We don't.
+assistant: I'm sorry, I didn't catch that. Do you have Adderall, 20 milligram instant release in stock?
+user: No.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE18dd75108f2a6a89ace714efe7b0d62d

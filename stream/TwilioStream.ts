@@ -10,6 +10,8 @@ import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 import { isNumber } from '../utils/isNumber.ts';
 import { getGptReplyAzure } from '../helpers/getGptReplyAzure.ts';
 import { detectIVR } from '../helpers/detectIVR.ts';
+import { respondWithVoice } from './responseWithVoice.ts';
+import { getRandomCacheFile } from './getRandomCacheFile.ts';
 
 export class TwilioStream {
   private twilioClient: Twilio;
@@ -21,10 +23,12 @@ export class TwilioStream {
   private messages: ChatCompletionMessage[] = [];
   private hostName: string;
   private callSid: string;
+  private streamSid: string;
   private fileName: string;
   private regExpresion = new RegExp(/[a-z]/i);
   private isFirstMessage = true;
-  public responseTime = 0;
+  private responseTime = 0;
+  private receivedTime = 0;
 
   constructor(
     twilioClient: Twilio,
@@ -34,6 +38,7 @@ export class TwilioStream {
     messages: ChatCompletionMessage[],
     hostName: string,
     callSid: string,
+    streamSid: string,
     fileName: string
   ) {
     this.twilioClient = twilioClient;
@@ -44,6 +49,7 @@ export class TwilioStream {
     this.messages = messages;
     this.hostName = hostName;
     this.callSid = callSid;
+    this.streamSid = streamSid;
     this.fileName = fileName;
   }
   private prepareWebsockets() {
@@ -96,8 +102,8 @@ export class TwilioStream {
               const chat = await getGptReply(this.messages);
               return chat;
             } else {
-              const chat = await getGptReply(this.messages);
-              // const chat = await getGptReplyAzure(this.messages);
+              // const chat = await getGptReply(this.messages);
+              const chat = await getGptReplyAzure(this.messages);
               return chat;
             }
           })();
@@ -132,6 +138,15 @@ export class TwilioStream {
                       </Response>`,
                 });
                 break;
+              } else if (response.toLowerCase() === 'hi') {
+                const fileName = getRandomCacheFile();
+                respondWithVoice(
+                  this.twilioWSConnection,
+                  fileName,
+                  this.streamSid
+                ).then((responseTime) => (this.receivedTime = responseTime!));
+                response = '';
+                break;
               } else if (
                 response.split(' ').length < 1 ||
                 !text.includes(' ') ||
@@ -150,6 +165,10 @@ export class TwilioStream {
             this.xiStream.sendXIMessage(response);
           }
           this.xiStream.endStream();
+          if (completeResponse === 'hi') {
+            completeResponse =
+              'Hi, I was just calling to see if you had a medication in stock?';
+          }
           this.messages.push({
             role: 'assistant',
             content: completeResponse,
@@ -186,7 +205,9 @@ export class TwilioStream {
     }
   }
   public recordGPTTime() {
-    const responseTime = this.xiStream.responseTime - this.responseTime;
+    const timeToUse =
+      this.receivedTime === 0 ? this.xiStream.responseTime : this.receivedTime;
+    const responseTime = timeToUse - this.responseTime;
     recordConversation(this.fileName, 'assistant', '', responseTime);
   }
 }

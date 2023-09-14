@@ -77,6 +77,7 @@ app.ws('/*', {
           messages,
           hostName,
           callSid,
+          twilioStartMsg.streamSid,
           fileName
         );
         break;
@@ -91,7 +92,7 @@ app.ws('/*', {
 
         if (twilioMarkEvent.mark.name === MarkName.COMPLETE) {
           if (responseTime === 0) {
-            responseTime = Date.now() - twilioStream.responseTime;
+            responseTime = 1;
             twilioStream.recordGPTTime();
           }
           console.log('Mark Complete');

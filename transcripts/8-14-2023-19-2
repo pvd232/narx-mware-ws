@@ -1,0 +1,7 @@
+
+user: Hello?
+assistant: Hi,
+GPT Time: 832
+user: No. We don't.
+assistant: I'm sorry, I didn't catch that.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REf0ccad23e8259d1f143221307481eedb
