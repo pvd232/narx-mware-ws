@@ -7,7 +7,7 @@ export const getGptReply = async (
     apiKey: process.env.OPENAI_API_KEY,
   });
   const chat = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4',
     messages: messages,
     max_tokens: 50,
     temperature: 0.35,

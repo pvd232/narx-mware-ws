@@ -1,0 +1,14 @@
+
+user: Hello, and thank you for calling Esco Pharmacy.
+assistant: 
+user: Our regular business hours are from eight thirty AM to eight PM.
+assistant: 
+user: Mid to six PM on Sunday.
+assistant: 
+user: Our hours and services,
+assistant: 
+user: u pharmacy dot com.
+assistant: 
+user: Voice mail. Voice mail.
+assistant: Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REbd170a6c7ad6483a4273fd0436521746

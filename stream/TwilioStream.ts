@@ -86,54 +86,53 @@ export class TwilioStream {
 
           for await (const part of gptStream) {
             const text = part.choices[0]?.delta?.content || '';
-            completeResponse += text;
-            // test is text is an integer using parseInt
-
-            if (response.toLowerCase().includes('goodbye')) {
-              this.streamingStatus = StreamingStatus.CLOSING;
-              this.xiStream.closingConnection();
-            } else if (
-              response.toLowerCase().includes('press') &&
-              isNumber(text)
-            ) {
-              // Close out everything
-              this.streamingStatus = StreamingStatus.CLOSED;
-              this.xiStream.closeConnection();
-              const ivrResponse = text;
-              recordConversation(this.fileName, 'assistant', response);
-              this.twilioClient.calls(this.callSid!).update({
-                twiml: `<Response>
+            // For IVR handling response will be empty
+            if (text !== '') {
+              completeResponse += text;
+              // Test is text is an integer using parseInt
+              if (response.toLowerCase().includes('goodbye')) {
+                this.streamingStatus = StreamingStatus.CLOSING;
+                this.xiStream.closingConnection();
+              } else if (
+                response.toLowerCase().includes('press') &&
+                isNumber(text)
+              ) {
+                // Close out everything
+                this.streamingStatus = StreamingStatus.CLOSED;
+                this.xiStream.closeConnection();
+                const ivrResponse = text;
+                recordConversation(this.fileName, 'assistant', response);
+                this.twilioClient.calls(this.callSid!).update({
+                  twiml: `<Response>
                         <Play digits="${ivrResponse}"> </Play>
                         <Connect>
                           <Stream url="wss://${this.hostName}/"> </Stream>
                         </Connect>
                       </Response>`,
-              });
-              break;
-            } else if (
-              response.split(' ').length < 1 ||
-              !text.includes(' ') ||
-              !text.match(this.regExpresion)
-            ) {
-              response += text;
-              continue;
-            } else {
-              this.xiStream.sendXIMessage(response);
-              response = text;
-              continue;
+                });
+                break;
+              } else if (
+                response.split(' ').length < 1 ||
+                !text.includes(' ') ||
+                !text.match(this.regExpresion)
+              ) {
+                response += text;
+                continue;
+              } else {
+                this.xiStream.sendXIMessage(response);
+                response = text;
+                continue;
+              }
             }
           }
-
-          this.messages.push({
-            role: 'assistant',
-            content: completeResponse,
-          });
-
           if (response !== '') {
             this.xiStream.sendXIMessage(response);
           }
           this.xiStream.endStream();
-
+          this.messages.push({
+            role: 'assistant',
+            content: completeResponse,
+          });
           recordConversation(
             this.fileName,
             'assistant',

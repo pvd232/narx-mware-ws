@@ -34,6 +34,7 @@ export class Cargo {
               this.tasksCompleted++;
             }
           }
+          // Signal that the task is complete to the cargo, decrementing the number of tasks in the queue
           callback();
         });
       }

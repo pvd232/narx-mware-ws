@@ -1,0 +1,46 @@
+
+user: Hello. And thank you for calling Esco Pharmacy.
+assistant: 
+user: That this time,
+assistant: 
+user: are from eight thirty AM to eight PM.
+assistant: 
+user: Ten AM to six PM on Sunday.
+assistant: 
+user: About our hours and services.
+assistant: 
+user: Dot com.
+assistant: 
+user: You have a voice mail.
+assistant: Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REb94efddb041630758f82382f430d3a83
+user: Hello, and thank you for calling Esco Pharmacy.
+assistant: 
+user: In and testing,
+assistant: 
+user: to book an appointment.
+assistant: 
+user: N two three s collab dot com.
+assistant: 
+user: Status inquiry.
+assistant: 
+user: Application on our website under the tab COVID nineteen.
+assistant: 
+user: Five masks.
+assistant: 
+user: Please subscribe to our newsletters to get updates for when they are available in store.
+assistant: 
+user: Please press one.
+assistant: 
+user: Press two.
+assistant: 
+user: Please press three.
+assistant: Press 
+assistant: Press 3
+user: Please hold while I try to connect you.
+assistant: 
+user: Hello?
+assistant: Hi - I was just calling to see if you have a medication in stock?
+user: Bye.
+assistant: Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE90c84d45a81b461e1c43277b5e4cad9f

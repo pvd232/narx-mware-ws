@@ -1,0 +1,8 @@
+
+user: Hello, and thank you for calling Esco Pharmacy.
+assistant: Hi, I was just calling to see if you have a medication in stock?
+user: You have reached us outside of regular business hours.
+assistant: I'm sorry, I didn't catch that.
+user: Your name and your message, we will contact you back as soon as possible.
+assistant: Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE15b15879a7f66a4ac3d23988ff11ac79
