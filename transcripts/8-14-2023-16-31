@@ -1,0 +1,24 @@
+
+user: Hello, and thank you for calling Esco Pharmacy.
+assistant: ''
+user: For COVID nineteen vaccine and testing, please press six.
+assistant: ''
+user: To book an appointment, please visit our website
+assistant: ''
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE86a4f7d5d5339137ae7630b9ef27598a
+user: at one two three s collab dot com. For any COVID nineteen status
+assistant: ''
+user: please refer to the status inquiry section
+user: our website under the tab covid nineteen.
+assistant: ''
+assistant: ''
+user: If you are looking for the n ninety five masks, please visit our website and
+assistant: ''
+user: subscribe to our newsletters to get updates for when they are available in store.
+assistant: ''
+user: For store hours, please press one. For Spanish,
+assistant: ''
+user: please press two. To reach the pharmacy department, please press three.
+assistant: press 
+assistant: press 3
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE0610f1483fc69d02a55f905b9d3e1af2

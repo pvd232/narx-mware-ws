@@ -80,7 +80,9 @@ export class TwilioStream {
               this.streamingStatus = StreamingStatus.GPT;
             }
           } else {
-            this.streamingStatus = StreamingStatus.GPT;
+            if (this.streamingStatus !== StreamingStatus.IVR) {
+              this.streamingStatus = StreamingStatus.GPT;
+            }
           }
           console.log('this.streamingStatus', this.streamingStatus);
           this.messages.push({

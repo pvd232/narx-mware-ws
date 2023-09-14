@@ -1,0 +1,50 @@
+
+user: Hello, and thank you for calling Esco pharmacy.
+assistant: ''
+user: COVID nineteen vaccine and testing, please press six.
+assistant: ''
+user: To book an appointment at one two three s collab dot com.
+assistant: ''
+user: For any COVID inquiry, please refer to the status inquiry
+assistant: ''
+user: on our website.
+assistant: ''
+user: If n ninety five masks, please visit our website and
+assistant: ''
+user: subscribe to our newsletter when they are available in store.
+assistant: ''
+user: Four store hours. For Spanish, please press two.
+assistant: ''
+user: To reach the far please press three. For over the counter medicine and medication,
+assistant: ''
+user: Dillefort.
+assistant: I'm sorry, I didn't catch that. Could you please repeat your request?
+user: Full star.
+assistant: I'm sorry, I'm still not sure what you're asking for. Could you please repeat your request more clearly?
+user: Hello, and thank you for calling
+assistant: Esco Pharmacy. How can I assist you today?
+user: to book an appointment, please visit our website
+assistant: I'm sorry, I didn't catch that. Could you please repeat your request?
+user: at one two three, refer to the status inquiry section on our website
+assistant: I'm sorry, I'm still not sure what you're asking for. Could you please clarify your request?
+user: under the tab COVID newsletters to get updates for when they are available in store.
+assistant: I'm sorry, I'm still not sure what you're asking for. Could you please clarify your request?
+user: Press three. For over the counter medicine and medications delivery,
+assistant: I'm sorry, I didn't catch that. Could you please repeat your request?
+user: please press
+assistant: I'm sorry, I still didn't catch that. It seems like you may have accidentally pressed a button on your phone. Could you please repeat your request?
+user: Hello. And thank you for calling Esco Pharmacy.
+assistant: Hi, how can I assist you today?
+user: For to book an appointment, please visit our
+assistant: I'm sorry, I didn't catch that. Could you please repeat your request?
+user: website at one two three Escosinquiry section
+assistant: I'm sorry, I'm still not sure what you're asking for. Could you please clarify your request?
+user: our website under the tab covid nine to get updates for when they are available in store.
+assistant: I'm sorry, but it sounds like you may be having trouble communicating your request. If you are calling to inquire about the availability of a specific medication, please let me know the name of the medication and I can check if we have it in stock
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE2a1f7786a3895ae71c686255af663312
+user: And thank you for calling Esco pharmacy. Four
+assistant: ''
+user: COVID nineteen vaccine and testing, please press six.
+assistant: ''
+user: To book an appointment or website at one two three s collab dot com.
+assistant: I'm sorry, but it sounds like you may be having trouble communicating your request. If you are calling to inquire about the availability of a specific medication, please let me know the name of the medication and I can check if we have it in stock
