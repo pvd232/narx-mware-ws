@@ -18,6 +18,9 @@ export class XIStream {
     );
     this.cargo = cargo;
   }
+  get responseTime() {
+    return this.cargo.firstResponseTime;
+  }
   private prepareWebsockets() {
     console.log('XI WebSocket client connected');
     this.xiWSClient.on('message', this.handleMessageFromXI.bind(this));

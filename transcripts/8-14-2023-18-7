@@ -1,0 +1,6 @@
+
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE40448f805902fb0ea2cb5fe1d3f4eb40
+user: What medication is it?
+assistant: It's adderall, 20 milligram instant release.
+GPT4 Time: 2551
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE9f7afa0360611a0e802386e06afa0ca2

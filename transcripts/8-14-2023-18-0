@@ -1,0 +1,7 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you have a medication in stock?
+GPT Time: 1538
+user: No. We don't.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE7efc2e21334de3cc357b09991a3c4290

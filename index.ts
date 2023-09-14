@@ -20,7 +20,7 @@ import { MediaEvent } from './types/interface/twilio/event/MediaEvent.ts';
 import { convertAudio } from './helpers/convertAudio.ts';
 import { Cargo } from './stream/Cargo.ts';
 // import { respondWithVoice } from './stream/responseWithVoice.ts';
-import { recordConversation } from './stream/recordingConversation.ts';
+import { recordConversation } from './stream/recordConversation.ts';
 import { messages } from './config/messages.ts';
 import { TwilioStream } from './stream/TwilioStream.ts';
 import { deepgramConfig } from './config/deepgramConfig.ts';
@@ -39,7 +39,7 @@ let twilioClient: Twilio;
 
 let hostName = '';
 let callSid = '';
-let streamSid = '';
+let responseTime = 0;
 const fileName = getTranscriptFileName();
 
 const app = uWS.App();
@@ -63,7 +63,6 @@ app.ws('/*', {
 
       case MessageEvent.Start:
         console.log(`Starting Media Stream ${msg.streamSid}`);
-        streamSid = msg.streamSid;
         const twilioStartMsg = msg as StartEvent;
         twilioStream = new TwilioStream(
           twilioClient!,
@@ -89,7 +88,12 @@ app.ws('/*', {
       case MessageEvent.Mark:
         const twilioMarkEvent = msg as MarkEvent;
         console.log('Mark');
+
         if (twilioMarkEvent.mark.name === MarkName.COMPLETE) {
+          if (responseTime === 0) {
+            responseTime = Date.now() - twilioStream.responseTime;
+            twilioStream.recordGPTTime();
+          }
           console.log('Mark Complete');
           if (twilioStream.streamingStatus !== StreamingStatus.IVR) {
             twilioStream.streamingStatus = StreamingStatus.PHARM;
@@ -154,7 +158,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const esco = '+12122468169';
   const apotheco = '+12128890022';
   const naturesCure = '+12125459393';
-  const phoneToCall = esco;
+  const phoneToCall = peter;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;

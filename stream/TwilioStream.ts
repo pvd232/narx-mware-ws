@@ -2,13 +2,9 @@ import { WebSocket } from 'uWebSockets.js';
 import { TwilioUserData } from '../types/interface/twilio/TwilioUserData.ts';
 import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscription';
 import { XIStream } from './XIStream.ts';
-import {
-  ChatCompletionChunk,
-  ChatCompletionMessage,
-} from 'openai/resources/chat';
-import { recordConversation } from './recordingConversation.ts';
+import { ChatCompletionMessage } from 'openai/resources/chat';
+import { recordConversation } from './recordConversation.ts';
 import { getGptReply } from '../helpers/getGptReply.ts';
-import { Stream } from 'openai/streaming';
 import { Twilio } from 'twilio';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 import { isNumber } from '../utils/isNumber.ts';
@@ -28,6 +24,7 @@ export class TwilioStream {
   private fileName: string;
   private regExpresion = new RegExp(/[a-z]/i);
   private isFirstMessage = true;
+  public responseTime = 0;
 
   constructor(
     twilioClient: Twilio,
@@ -73,6 +70,7 @@ export class TwilioStream {
         ) {
           this.xiStream.reinitializeConnection();
           if (this.isFirstMessage) {
+            this.responseTime = Date.now();
             this.isFirstMessage = false;
             if (detectIVR(pharmReply)) {
               this.streamingStatus = StreamingStatus.IVR;
@@ -98,7 +96,8 @@ export class TwilioStream {
               const chat = await getGptReply(this.messages);
               return chat;
             } else {
-              const chat = await getGptReplyAzure(this.messages);
+              const chat = await getGptReply(this.messages);
+              // const chat = await getGptReplyAzure(this.messages);
               return chat;
             }
           })();
@@ -159,6 +158,7 @@ export class TwilioStream {
             this.fileName,
             'assistant',
             completeResponse,
+            null,
             () => {
               console.log('Recording complete');
             }
@@ -178,11 +178,15 @@ export class TwilioStream {
     }
   }
   public closeConnection() {
-    this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
     if (this.streamingStatus !== StreamingStatus.CLOSED) {
       this.streamingStatus = StreamingStatus.CLOSED;
+      this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
       this.xiStream.closeConnection();
       this.twilioWSConnection.end(1000);
     }
+  }
+  public recordGPTTime() {
+    const responseTime = this.xiStream.responseTime - this.responseTime;
+    recordConversation(this.fileName, 'assistant', '', responseTime);
   }
 }

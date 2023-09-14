@@ -13,6 +13,7 @@ export class Cargo {
   private tasksCompleted = 0;
   public xiStreamComplete = false;
   public streamingStatus: StreamingStatus = StreamingStatus.PHARM;
+  public firstResponseTime = 0;
   public cargo = async.cargoQueue(
     (tasks: AsyncTask[], callback: () => void) => {
       for (let i = 0; i < tasks.length; i++) {
@@ -25,6 +26,9 @@ export class Cargo {
             // Add the result to taskResults Map
             this.taskResults.set(task.index, result);
             while (this.taskResults.get(this.tasksCompleted) !== undefined) {
+              if (this.tasksCompleted === 0) {
+                this.firstResponseTime = Date.now();
+              }
               const wavBufferNoHeader = this.taskResults
                 .get(this.tasksCompleted)
                 .subarray(80);
