@@ -1,0 +1,24 @@
+
+user: Hello.
+assistant: Hi,
+GPT Time: 923
+user: Let me check. Let me put you on hold.
+assistant: Sure, I'll wait.
+user: Six
+assistant: Sorry, I didn't catch that. Could you please repeat what you said?
+user: Pharmacy. How can I help you?
+assistant: Hi,
+user: Hi. I don't have the medication.
+assistant: Actually, I'm calling to see if you have a medication in stock. Do you have Adderall, 20 milligram instant release?
+user: Hello. What was that?
+assistant: I was asking if you have Adderall, 20 milligram instant release in stock.
+user: What's the medication one more time?
+assistant: The medication is Adderall, 20 milligram instant release.
+user: What's the medication?
+assistant: The medication is Adderall, 20 milligram instant release.
+user: Hello?
+assistant: Yes, I'm still here. Do you have Adderall, 20 milligram instant release in stock?
+user: Sorry. What was that?
+assistant: I was asking if you have Adderall, 20 milligram instant release in stock.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE710108e697811b3f3f49b655dc9f665a
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REf2a5fd6f6658719f674c0d1ebf1f64fc

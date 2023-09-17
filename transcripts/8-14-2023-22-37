@@ -1,0 +1,11 @@
+
+user: Automated voice messaging system.
+assistant: I'm sorry, I didn't catch that. Could you please repeat what you said?
+GPT Time: 1497
+user: Five nine
+assistant: I'm sorry, I'm not sure what you mean by "Five nine". Could you please clarify what you are looking for?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REb162353b726dd77cdb02d350db6e54b6
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE20930628e797687ca71cdf3df0026074
+user: Hello?
+assistant: Hello, and thank you for calling. How can I assist you today?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE3eb4d9c60894f60429dbfe8b35e65dc7

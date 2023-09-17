@@ -19,22 +19,22 @@ import { StartEvent } from './types/interface/twilio/event/StartEvent.ts';
 import { MediaEvent } from './types/interface/twilio/event/MediaEvent.ts';
 import { convertAudio } from './helpers/convertAudio.ts';
 import { Cargo } from './stream/Cargo.ts';
-// import { respondWithVoice } from './stream/responseWithVoice.ts';
 import { recordConversation } from './stream/recordConversation.ts';
 import { messages } from './config/messages.ts';
-import { TwilioStream } from './stream/TwilioStream.ts';
+import { Stream } from './stream/Stream.ts';
 import { deepgramConfig } from './config/deepgramConfig.ts';
 import { StreamingStatus } from './types/enums/StreamingStatus.ts';
 import { getTranscriptFileName } from './getTranscriptFileName.ts';
 import { MarkEvent } from './types/interface/twilio/event/MarkEvent.ts';
 import { MarkName } from './types/enums/MarkName.ts';
 import { XIStream } from './stream/XIStream.ts';
+import { StreamController } from './types/interface/twilio/event/StreamController.ts';
+import { StopEvent } from './types/interface/twilio/event/StopEvent.ts';
 const { Deepgram } = pkg;
 
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
 const deepgramClient = new Deepgram(process.env.DEEPGRAM_API_KEY!);
-let twilioStream: TwilioStream;
 let twilioClient: Twilio;
 
 let hostName = '';
@@ -43,12 +43,14 @@ let responseTime = 0;
 const fileName = getTranscriptFileName();
 
 const app = uWS.App();
-
+const streamController = new StreamController();
 app.ws('/*', {
   // Twilio client opens new connection
   open: async (ws: WebSocket<TwilioUserData>) => {
-    // Conditional IVR logic, wait 2 seconds for user to say something
     console.log('New Connection Initiated');
+    const addy = ws.getRemoteAddressAsText();
+    const parsedAddy = stringifyArrayBuffer(addy);
+    console.log('parsexdAddy', parsedAddy);
   },
   message: (
     ws: WebSocket<TwilioUserData>,
@@ -64,7 +66,7 @@ app.ws('/*', {
       case MessageEvent.Start:
         console.log(`Starting Media Stream ${msg.streamSid}`);
         const twilioStartMsg = msg as StartEvent;
-        twilioStream = new TwilioStream(
+        const newStream = new Stream(
           twilioClient!,
           ws,
           deepgramClient.transcription.live(deepgramConfig),
@@ -80,11 +82,16 @@ app.ws('/*', {
           twilioStartMsg.streamSid,
           fileName
         );
+        streamController.add(newStream);
         break;
       case MessageEvent.Media:
         // Write Media Packets to the recognize stream continuously
         const twilioMediaEvent = msg as MediaEvent;
-        twilioStream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
+        streamController
+          .get(twilioMediaEvent.streamSid)!
+          .handleMessageFromTwilio(twilioMediaEvent.media.payload);
+        // stream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
+
         break;
       case MessageEvent.Mark:
         const twilioMarkEvent = msg as MarkEvent;
@@ -93,20 +100,31 @@ app.ws('/*', {
         if (twilioMarkEvent.mark.name === MarkName.COMPLETE) {
           if (responseTime === 0) {
             responseTime = 1;
-            twilioStream.recordGPTTime();
+            streamController.get(twilioMarkEvent.streamSid)!.recordGPTTime();
           }
           console.log('Mark Complete');
-          if (twilioStream.streamingStatus !== StreamingStatus.IVR) {
-            twilioStream.streamingStatus = StreamingStatus.PHARM;
+          if (
+            streamController.get(twilioMarkEvent.streamSid)!.streamingStatus !==
+            StreamingStatus.IVR
+          ) {
+            streamController.get(twilioMarkEvent.streamSid)!.streamingStatus =
+              StreamingStatus.PHARM;
           }
         } else if (twilioMarkEvent.mark.name === MarkName.TERMINATE) {
           console.log('Mark Terminate');
-          setTimeout(() => twilioStream.closeConnection(), 5000);
+          setTimeout(
+            () =>
+              streamController
+                .get(twilioMarkEvent.streamSid)!
+                .closeConnection(),
+            5000
+          );
         }
         break;
       case MessageEvent.Stop:
         console.log(`Call Has Ended`);
-        twilioStream.closeConnection();
+        const twilioStopMsg = msg as StopEvent;
+        streamController.get(twilioStopMsg.streamSid)!.closeConnection();
         break;
     }
   },
@@ -135,6 +153,9 @@ app.get('/convert_audio', (res: HttpResponse, req: HttpRequest) => {
 });
 app.post('/', (res: HttpResponse, req: HttpRequest) => {
   hostName = req.getHeader('host') ?? '';
+  const otherHostName = req.getHeader('x-forwarded-host') ?? '';
+  console.log('otherHostName', otherHostName);
+  console.log('hostName', hostName);
   res.writeHeader('Content-Type', 'text/xml');
   res.end(`
     <Response>
@@ -159,7 +180,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const esco = '+12122468169';
   const apotheco = '+12128890022';
   const naturesCure = '+12125459393';
-  const phoneToCall = peter;
+  const phoneToCall = nimi;
   const voiceUrl = process.env.VOICE_URL;
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -190,10 +211,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   }
 });
 app.post('/terminate_call', async (res: HttpResponse, req: HttpRequest) => {
-  if (twilioStream) {
-    twilioStream.closeConnection();
-  }
-  /* If we were aborted, you cannot respond */
+  streamController.get(req.getHeader('call_sid'))?.closeConnection();
   res.end('Call terminated');
 });
 app.post('/record', async (res: HttpResponse, req: HttpRequest) => {

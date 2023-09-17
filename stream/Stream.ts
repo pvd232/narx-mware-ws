@@ -13,7 +13,7 @@ import { detectIVR } from '../helpers/detectIVR.ts';
 import { respondWithVoice } from './responseWithVoice.ts';
 import { getRandomCacheFile } from './getRandomCacheFile.ts';
 
-export class TwilioStream {
+export class Stream {
   private twilioClient: Twilio;
   private twilioWSConnection: WebSocket<TwilioUserData>;
 
@@ -22,8 +22,8 @@ export class TwilioStream {
   public streamingStatus: StreamingStatus = StreamingStatus.PHARM;
   private messages: ChatCompletionMessage[] = [];
   private hostName: string;
-  private callSid: string;
-  private streamSid: string;
+  public callSid: string;
+  public streamSid: string;
   private fileName: string;
   private regExpresion = new RegExp(/[a-z]/i);
   private isFirstMessage = true;

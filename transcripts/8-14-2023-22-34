@@ -1,0 +1,26 @@
+
+user: Welcome to Walgreens.
+assistant: ''
+user: To
+GPT Time: 1593
+assistant: ''
+user: Check the status in order
+assistant: ''
+user: press one.
+assistant: ''
+user: To
+assistant: ''
+user: Get your head wax, press two.
+assistant: ''
+user: To learn how to speak Spanish, press three.
+assistant: ''
+user: To speak with the pharmacist, press four.
+assistant: press 
+assistant: press 4
+user: Hello?
+assistant: Hi.
+user: Okay.
+assistant: I'm calling on behalf of my daughter to see if you have Adderall, 20 milligram instant release, in stock.
+user: What's today?
+assistant: I'm sorry, I didn't catch that. Could you please clarify if you have Adderall, 20 milligram instant release, in stock?
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REd12e3a30ae4e690144c830668e3c17dc

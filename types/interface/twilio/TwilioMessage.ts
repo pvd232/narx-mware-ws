@@ -1,5 +1,5 @@
 import { MessageEvent } from '../../enums/MessageEvent.ts';
 
-export interface TwilioMessage {
+export type TwilioMessage = {
   event: MessageEvent;
-}
+};

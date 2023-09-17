@@ -1,3 +1,3 @@
-export interface TwilioUserData {
+export type TwilioUserData = {
   id: string;
-}
+};
