@@ -1,0 +1,9 @@
+
+user: Clarmacy.
+assistant: Hi, I was just calling to see if you had a medication in stock.
+GPT Time: 1671
+user: What's the medicine name?
+assistant: It's Adderall, 20 milligram instant release.
+user: No. We don't have the install.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REd447f7a4f5898d09fadc007d8303c688

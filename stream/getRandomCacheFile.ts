@@ -1,6 +1,6 @@
 export const getRandomCacheFile = () => {
-  const randomInt1 = Math.floor(Math.random() * 2) + 1;
-  const randomInt2 = Math.floor(Math.random() * 3) + 1;
-  const fileName = `./voice/intro_${randomInt1}/new_intro_${randomInt1}_${randomInt2}.wav`;
+  // random number between 1 and 2
+  const randomInt1 = Math.floor(Math.random() * 3) + 1;
+  const fileName = `./voice/intro/intro_${randomInt1}.wav`;
   return fileName;
 };

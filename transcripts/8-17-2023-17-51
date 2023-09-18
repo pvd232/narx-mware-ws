@@ -1,0 +1,11 @@
+
+user: Hello? Hello?
+assistant: Hi,
+GPT Time: 907
+user: What's the medication?
+assistant: It's Adderall, 20 milligram instant release.
+user: Sorry. What was the strength?
+assistant: It's 20 milligram instant release.
+user: Got it. And what's the NDC code?
+assistant: The NDC is 57844-120-01.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REf23156b54c00200486825bab5f994a22

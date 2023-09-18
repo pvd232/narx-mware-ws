@@ -24,11 +24,11 @@ import { messages } from './config/messages.ts';
 import { Stream } from './stream/Stream.ts';
 import { deepgramConfig } from './config/deepgramConfig.ts';
 import { StreamingStatus } from './types/enums/StreamingStatus.ts';
-import { getTranscriptFileName } from './getTranscriptFileName.ts';
+import { getTranscriptFileName } from './helpers/getTranscriptFileName.ts';
 import { MarkEvent } from './types/interface/twilio/event/MarkEvent.ts';
 import { MarkName } from './types/enums/MarkName.ts';
 import { XIStream } from './stream/XIStream.ts';
-import { StreamController } from './types/interface/twilio/event/StreamController.ts';
+import { StreamService } from './types/interface/twilio/event/StreamService.ts';
 import { StopEvent } from './types/interface/twilio/event/StopEvent.ts';
 const { Deepgram } = pkg;
 
@@ -43,14 +43,11 @@ let responseTime = 0;
 const fileName = getTranscriptFileName();
 
 const app = uWS.App();
-const streamController = new StreamController();
+const streamService = new StreamService();
 app.ws('/*', {
   // Twilio client opens new connection
   open: async (ws: WebSocket<TwilioUserData>) => {
     console.log('New Connection Initiated');
-    const addy = ws.getRemoteAddressAsText();
-    const parsedAddy = stringifyArrayBuffer(addy);
-    console.log('parsexdAddy', parsedAddy);
   },
   message: (
     ws: WebSocket<TwilioUserData>,
@@ -69,7 +66,9 @@ app.ws('/*', {
         const newStream = new Stream(
           twilioClient!,
           ws,
-          deepgramClient.transcription.live(deepgramConfig),
+          new Deepgram(process.env.DEEPGRAM_API_KEY!).transcription.live(
+            deepgramConfig
+          ),
           new XIStream(
             new WebSocketClient(
               `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
@@ -82,12 +81,12 @@ app.ws('/*', {
           twilioStartMsg.streamSid,
           fileName
         );
-        streamController.add(newStream);
+        streamService.add(newStream);
         break;
       case MessageEvent.Media:
         // Write Media Packets to the recognize stream continuously
         const twilioMediaEvent = msg as MediaEvent;
-        streamController
+        streamService
           .get(twilioMediaEvent.streamSid)!
           .handleMessageFromTwilio(twilioMediaEvent.media.payload);
         // stream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
@@ -100,23 +99,21 @@ app.ws('/*', {
         if (twilioMarkEvent.mark.name === MarkName.COMPLETE) {
           if (responseTime === 0) {
             responseTime = 1;
-            streamController.get(twilioMarkEvent.streamSid)!.recordGPTTime();
+            streamService.get(twilioMarkEvent.streamSid)!.recordGPTTime();
           }
           console.log('Mark Complete');
           if (
-            streamController.get(twilioMarkEvent.streamSid)!.streamingStatus !==
+            streamService.get(twilioMarkEvent.streamSid)!.streamingStatus !==
             StreamingStatus.IVR
           ) {
-            streamController.get(twilioMarkEvent.streamSid)!.streamingStatus =
+            streamService.get(twilioMarkEvent.streamSid)!.streamingStatus =
               StreamingStatus.PHARM;
           }
         } else if (twilioMarkEvent.mark.name === MarkName.TERMINATE) {
           console.log('Mark Terminate');
           setTimeout(
             () =>
-              streamController
-                .get(twilioMarkEvent.streamSid)!
-                .closeConnection(),
+              streamService.get(twilioMarkEvent.streamSid)!.closeConnection(),
             5000
           );
         }
@@ -124,7 +121,7 @@ app.ws('/*', {
       case MessageEvent.Stop:
         console.log(`Call Has Ended`);
         const twilioStopMsg = msg as StopEvent;
-        streamController.get(twilioStopMsg.streamSid)!.closeConnection();
+        streamService.get(twilioStopMsg.streamSid)!.closeConnection();
         break;
     }
   },
@@ -180,12 +177,17 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const esco = '+12122468169';
   const apotheco = '+12128890022';
   const naturesCure = '+12125459393';
-  const phoneToCall = nimi;
-  const voiceUrl = process.env.VOICE_URL;
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const avenueChemists = '+17185451010';
+  const kissenaDrugs = '+17187937658';
+  const davidsPharmacy = '+12124777788';
+  const northSide = '+17183876566';
+  const central = '+19293970331';
+  const phoneToCall = central;
 
-  twilioClient = twilio(accountSid, authToken);
+  twilioClient = twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+  );
   /* Can't return or yield from here without responding or attaching an abort handler */
   res.onAborted(() => {
     res.aborted = true;
@@ -194,13 +196,13 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   /* Awaiting will yield and effectively return to C++, so you need to have called onAborted */
   await twilioClient
     .incomingPhoneNumbers('PN62be7bf578ccd82b025fe80d103f1cd3')
-    .update({ voiceUrl: voiceUrl });
+    .update({ voiceUrl: process.env.VOICE_URL });
   const call = await twilioClient.calls.create({
-    url: voiceUrl,
+    url: process.env.VOICE_URL,
     to: phoneToCall,
     from: '+18883422703',
     record: true,
-    statusCallback: `${voiceUrl}/record`,
+    statusCallback: `${process.env.VOICE_URL}/record`,
   });
   callSid = call.sid;
   /* If we were aborted, you cannot respond */
@@ -211,7 +213,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   }
 });
 app.post('/terminate_call', async (res: HttpResponse, req: HttpRequest) => {
-  streamController.get(req.getHeader('call_sid'))?.closeConnection();
+  streamService.get(req.getHeader('call_sid'))?.closeConnection();
   res.end('Call terminated');
 });
 app.post('/record', async (res: HttpResponse, req: HttpRequest) => {
@@ -220,7 +222,7 @@ app.post('/record', async (res: HttpResponse, req: HttpRequest) => {
   });
   res.onData((data) => {
     const encodedData = stringifyArrayBuffer(data);
-    const recordingUrl = encodedData.split('RecordingUrl=')[1].split('&')[0];
+    const recordingUrl = encodedData.split('RecordingUrl=')[1]?.split('&')[0];
     const decodedRecordingUrl = decodeURIComponent(recordingUrl);
     recordConversation(fileName, 'admin', decodedRecordingUrl);
   });

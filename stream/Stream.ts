@@ -82,32 +82,33 @@ export class Stream {
               this.streamingStatus = StreamingStatus.IVR;
             } else {
               this.streamingStatus = StreamingStatus.GPT;
+              this.messages.push({
+                role: 'user',
+                content: 'hello',
+              });
             }
           } else {
             if (this.streamingStatus !== StreamingStatus.IVR) {
               this.streamingStatus = StreamingStatus.GPT;
             }
+            this.messages.push({
+              role: 'user',
+              content: pharmReply,
+            });
           }
-          console.log('this.streamingStatus', this.streamingStatus);
-          this.messages.push({
-            role: 'user',
-            content: pharmReply,
-          });
-
           console.log('pharmReply', pharmReply);
           recordConversation(this.fileName, 'user', pharmReply);
 
-          const gptStream = await (async () => {
-            if (this.streamingStatus === StreamingStatus.IVR) {
-              const chat = await getGptReply(this.messages);
-              return chat;
-            } else {
-              // const chat = await getGptReply(this.messages);
-              const chat = await getGptReplyAzure(this.messages);
-              return chat;
-            }
-          })();
-
+          // const gptStream = await (async () => {
+          //   if (this.streamingStatus === StreamingStatus.IVR) {
+          //     const chat = await getGptReplyAzure(this.messages, 'gpt-4');
+          //     return chat;
+          //   } else {
+          //     const chat = await getGptReplyAzure(this.messages, 'gpt-4');
+          //     return chat;
+          //   }
+          // })();
+          const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
           let response = '';
           let completeResponse = '';
 

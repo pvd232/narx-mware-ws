@@ -35,7 +35,7 @@ export class XIStream {
       text: ' ',
       voice_settings: {
         stability: 0.5,
-        similarity_boost: 0.7,
+        similarity_boost: 0.75,
       },
       generation_config: {
         chunk_length_schedule: [120, 160, 250, 290],

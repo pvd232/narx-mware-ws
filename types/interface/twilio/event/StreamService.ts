@@ -1,5 +1,5 @@
 import { Stream } from '../../../../stream/Stream.ts';
-export class StreamController {
+export class StreamService {
   private streams: Map<string, Stream>;
   constructor() {
     this.streams = new Map();

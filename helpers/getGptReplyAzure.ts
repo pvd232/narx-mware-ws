@@ -1,6 +1,9 @@
 import { OpenAIClient, AzureKeyCredential, ChatMessage } from '@azure/openai';
 import { streamChatCompletions } from './streamChatCompletions.ts';
-export const getGptReplyAzure = async (messages: Array<ChatMessage>) => {
+export const getGptReplyAzure = async (
+  messages: Array<ChatMessage>,
+  model: string
+) => {
   const endpoint: string = process.env['AZURE_OPENAI_ENDPOINT']!;
   const azureApiKey: string = process.env['AZURE_OPENAI_KEY']!;
 
@@ -10,7 +13,7 @@ export const getGptReplyAzure = async (messages: Array<ChatMessage>) => {
   );
   const deploymentName = 'narx-gpt-35-turbo';
   const chatOptions = {
-    model: 'gpt-3.5-turbo',
+    model: model,
     maxTokens: 50,
     temperature: 0.35,
     topP: 0.5,

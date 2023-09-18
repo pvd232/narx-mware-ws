@@ -1,0 +1,14 @@
+
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE2a2aaad04ff010823c83b9736976330b
+user: Pharmacy.
+assistant: Hi, I was just calling to see if you had a medication in stock?
+GPT Time: 1475
+user: What medicine? What kind of medicine?
+assistant: It's Adderall, 20 milligram instant release.
+user: Yeah. That'll lower it. Yeah.
+assistant: Sorry, I didn't catch that. Could you please clarify?
+user: We don't have another level over here.
+assistant: I apologize for any confusion. I was calling to inquire if you have Adderall, 20 milligram instant release, in stock. Can you please check for me?
+user: We don't have. I told you.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE05f8026128f6ec7d5cab748c64c8ae0e

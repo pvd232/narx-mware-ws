@@ -1,0 +1,7 @@
+
+user: Bubble, Duble, Bobble.
+assistant: Hi, I'm calling to see if you have Adderall, 20 milligram instant release, in stock.
+GPT Time: 1612
+user: No. We don't
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REb2b36384538b191fb18ffb63c456d502
