@@ -1,0 +1,3 @@
+
+user: Hi.
+assistant: Hi, I was just calling to see if you had a medication in stock?

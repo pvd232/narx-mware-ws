@@ -1,0 +1,9 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you had a medication in stock?
+GPT Time: 494
+user: What's the medication?
+assistant: It's generic Adderall, 20 milligram instant release.
+user: No. I don't think we do.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE73e5b1486ac8eb2644330e3c7dc9c352

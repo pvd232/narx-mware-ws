@@ -1,0 +1,23 @@
+
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REaecf201575d3dbca3b515f136d72cfe0
+user: Hi, and thanks for calling Southside pharmacy.
+assistant: ''
+GPT Time: 1489
+user: If you know your party's extension, you may dial it at any
+assistant: ''
+user: For store hours and location, dial one.
+assistant: ''
+user: For over the counter orders or to check the status of your order,
+assistant: ''
+user: dial two.
+assistant: ''
+user: To speak to a pharmacist,
+assistant: press three.
+user: dial three.
+assistant: ''
+user: For refills, dial four.
+assistant: ''
+user: For billing,
+assistant: dial five.
+user: dial five.
+assistant: ''

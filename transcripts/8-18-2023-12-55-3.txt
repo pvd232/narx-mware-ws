@@ -1,0 +1,18 @@
+
+user: Eight
+assistant: Hi, I was just calling to see if you had a medication in stock?
+GPT Time: 446
+user: and extension, you may dial it at any time.
+assistant: Sorry, what was that? I'm calling to check if you have a medication in stock.
+user: Or to check the status of your order,
+assistant: Sorry, I didn't catch that. I'm calling to see if you have a specific medication in stock.
+user: dial four.
+assistant: Sorry, I didn't catch that. Can you please clarify if you have the medication I'm inquiring about in stock?
+user: Directory, dial nine.
+assistant: Sorry, I didn't catch that. Could you please let me know if you have the medication I'm asking about in stock?
+user: Hi. And thanks for calling Southside pharmacy.
+assistant: Hi
+user: For store hours and location, dial one.
+assistant: Sorry, I didn't catch that. I'm calling to check if you have a specific medication in stock.
+user: Dial three.
+assistant: Sorry, I didn't catch that. Can you please let me know if you have the medication I'm inquiring about in stock?

@@ -1,0 +1,14 @@
+
+user: On pharmacy,
+assistant: Hi.
+GPT Time: 710
+user: Which one?
+assistant: ''
+user: Which one
+assistant:  press 
+assistant: To reach the pharmacy department, please press 3
+user: Hello?
+assistant: Hi.
+user: Which one?
+assistant: ''
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE1d03f46712afacf6a5a159de70f895dd

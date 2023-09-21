@@ -1,0 +1,5 @@
+
+user: Hello?
+assistant: Hi, I was just calling to see if you had a medication in stock?
+GPT Time: 1018
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE0bad01738c926d0e62b76941560f8cd7

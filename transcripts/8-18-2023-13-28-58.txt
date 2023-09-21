@@ -1,0 +1,22 @@
+
+user: Hi. And thanks for calling Southside pharmacy.
+assistant: ''
+GPT Time: 924
+user: If you know your party's extension, you may dial it at any
+assistant: ''
+user: For store hours and location, dial one.
+assistant: ''
+user: For over the counter orders or to check the status of your order,
+assistant: ''
+user: dial two.
+assistant: ''
+user: To speak to a pharmacist,
+assistant: press
+assistant: press three
+user: For refills, dial four.
+assistant: Hi, I was just calling to see if you had a medication in stock?
+user: For billing,
+assistant: Sorry, what was that again? I was asking about the availability of a medication.
+user: dial five.
+assistant: Sorry, what was that again? I didn't catch that. Could you please repeat it?
+user: For our fax and email, dial six.

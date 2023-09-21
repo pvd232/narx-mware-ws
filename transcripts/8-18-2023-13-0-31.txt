@@ -1,0 +1,40 @@
+
+user: Hi. And thanks for calling Southside pharmacy.
+assistant: ''
+GPT Time: 994
+user: If you know your party's extension, you may dial it at any
+assistant: ''
+user: For store hours and location, dial one.
+assistant: ''
+user: For over the counter orders or to check the status of your order,
+assistant: ''
+user: dial two.
+assistant: ''
+user: To speak to a pharmacist,
+assistant: press three.
+user: dial three.
+assistant: ''
+user: For refills, dial four.
+assistant: ''
+user: For billing,
+assistant: press five.
+user: dial five.
+assistant: ''
+user: For our fax and email, dial six.
+assistant: ''
+user: For the company directory, dial nine.
+assistant: ''
+user: Or you may dial zero at any time to speak with an operator.
+assistant: ''
+user: Thank you, and have a great day.
+assistant: ''
+user: Hi. And thanks for calling Southside pharmacy.
+assistant: Hi
+user: If you know your party's extension, you may dial it at any
+assistant: Sorry, what was that again?
+user: For store hours and location, dial one.
+assistant: Sorry, what was that again?
+user: For over the counter orders or to check the status of your order,
+assistant: Sorry, what was that again?
+user: dial two.
+assistant: Sorry, what was that again?

@@ -1,0 +1,8 @@
+
+user: Hello?
+assistant: Hello, I was calling to see if you have a medication in stock?
+GPT Time: 1523
+user: What's the medication?
+assistant: It's Adderall, 20 milligram instant release.
+admin: +15126456898
+admin: +15126456898

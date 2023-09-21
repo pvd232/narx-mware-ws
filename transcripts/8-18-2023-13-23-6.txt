@@ -1,0 +1,59 @@
+
+user: And thanks for calling Southside pharmacy.
+assistant: ''
+GPT Time: 1061
+user: If you know your party's extension, you may dial it at any
+assistant: ''
+user: For store hours and location, dial one.
+assistant: ''
+user: For over the counter orders or to check the status of your order,
+assistant: ''
+user: dial two.
+assistant: ''
+user: To speak to a pharmacist,
+assistant: press
+assistant: press three
+user: For refills, dial four.
+assistant: Hi, I was just calling to see if you had a medication in stock?
+user: For billing,
+assistant: Sorry, what was that again? I was asking about the availability of a medication.
+user: dial five.
+assistant: Sorry, what was that again? I didn't catch that. Could you please repeat it?
+user: For our fax and email, dial six.
+assistant: Sorry, what was that again? I'm calling to inquire about the availability of a specific medication.
+user: For the company directory, dial nine.
+assistant: Sorry, what was that again? I'm calling to check if you have a specific medication in stock.
+user: Or you may dial zero at any time to speak with an operator.
+assistant: Great, thanks.
+user: Thank you, and have a great day.
+assistant: Hi
+user: Hi. And thanks for calling South Side Pharmacy.
+assistant: Hi
+user: If you know your party's extension, you may dial it at any
+assistant: Hi, I was just calling to see if you had a medication in stock?
+user: For store hours and location, dial one.
+assistant: Hi
+user: For over the counter orders or to check the status of your order,
+assistant: Hi
+user: dial two.
+assistant: Sorry, what was that again? I was asking about the availability of a medication.
+user: To speak to a pharmacist,
+assistant: press
+assistant: press three
+user: For refills, dial four.
+assistant: Hi
+user: For billing,
+assistant: Sorry, what was that again? I was asking about the availability of a medication.
+user: dial five.
+assistant: Sorry, what was that again? I didn't catch that. Could you please repeat it?
+user: For our fax and email, dial six.
+assistant: Sorry, what was that again? I'm calling to inquire about the availability of a specific medication.
+user: For the company directory, dial nine.
+assistant: Sorry, what was that again? I'm calling to check if you have a specific medication in stock.
+user: Or you may dial zero at any time to speak with an operator.
+assistant: Great, thanks.
+user: Thank you, and have a great day.
+assistant: Great, thanks for your help. Have a great day too. Goodbye.
+user: And thanks for calling Southside pharmacy.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/RE31ad83da7459e084d604cdb6dc0da9bf

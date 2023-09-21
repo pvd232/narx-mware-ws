@@ -1,0 +1,18 @@
+
+user: Hello. Thank you for calling King's pharmacy located in Park Slope.
+assistant: ''
+GPT Time: 1140
+user: Please listen as our options have recently changed.
+assistant: ''
+user: You know your party's extension, you may dial it at any time
+assistant: ''
+user: If you're calling from a doctor's office or hospital and would like to speak to a pharmacist,
+assistant: press 
+assistant: press 1
+user: This call may be monitored
+assistant: Hi, I was calling to see if you have a medication in stock?
+user: for quality assurance. Did you know that King's pharmacy is one of the
+assistant: Sorry, what was that again? I didn't catch that.
+user: fertility pharmacies in New York
+admin: +17182303535
+assistant: Sorry, what was that again? I didn't catch that.

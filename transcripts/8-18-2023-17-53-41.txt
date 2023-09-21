@@ -1,0 +1,4 @@
+
+user: Hello. Thank you for calling King's pharmacy located in Park Slope.
+assistant: ''
+GPT Time: 893

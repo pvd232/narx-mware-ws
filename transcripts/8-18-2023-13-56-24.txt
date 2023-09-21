@@ -1,0 +1,9 @@
+
+user: Get you
+assistant: Hello, I was calling to see if you have a medication in stock?
+GPT Time: 1289
+user: Which medication you're looking for?
+assistant: It's Adderall, 20 milligram instant release.
+user: No. Actually, it's a backwater. We don't have any.
+assistant: Understood, thanks for checking. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REff325fcc8b36a10e7ce25e450524417c

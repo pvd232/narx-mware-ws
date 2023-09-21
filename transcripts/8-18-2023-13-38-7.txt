@@ -1,0 +1,43 @@
+
+user: Hey.
+assistant: Hi, I was just calling to see if you had a medication in stock?
+GPT Time: 395
+user: And extension, you may dial it at any time.
+assistant: ''
+user: Send location, dial one.
+assistant: ''
+user: Counter orders or to check the status of your order,
+assistant: ''
+user: assessed,
+assistant: ''
+user: dial for refills, dial four.
+assistant: ''
+user: Dial five.
+assistant: ''
+user: An email, dial six.
+assistant: ''
+user: Me directory, dial nine.
+assistant: ''
+user: Zero at any time to speak with an operator.
+assistant: press
+assistant: press 
+user: Day.
+assistant: Hi
+user: And thanks for calling Southside pharmacy.
+assistant: Hi
+user: Short hours and location, dial one.
+assistant: ''
+user: Order orders or to check the status of your order,
+assistant: ''
+user: To speak to a pharmacist,
+assistant: press
+assistant: press 
+user: For refills, dial four.
+assistant: Sorry, what was that again?
+user: For billing,
+assistant: Sorry, what was that again?
+user: dial five.
+assistant: press
+assistant: press 
+user: And email, dial six.
+assistant: Hi

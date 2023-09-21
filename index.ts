@@ -34,9 +34,8 @@ const { Deepgram } = pkg;
 
 dotenv.config({ path: findConfig('.env') ?? undefined });
 
-const deepgramClient = new Deepgram(process.env.DEEPGRAM_API_KEY!);
 let twilioClient: Twilio;
-
+let phoneToCall = '';
 let hostName = '';
 let callSid = '';
 let responseTime = 0;
@@ -182,7 +181,13 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const davidsPharmacy = '+12124777788';
   const northSide = '+17183876566';
   const central = '+19293970331';
-  const phoneToCall = central;
+  const omm = '+17185004928';
+  const santaMaria = '+17183880745';
+  const southside = '+17187827200';
+  const saiApteak = '+17183498989';
+  const cityChemist = '+17183870124';
+  const kings = '+17182303535';
+  phoneToCall = peter;
 
   twilioClient = twilio(
     process.env.TWILIO_ACCOUNT_SID,
@@ -224,7 +229,13 @@ app.post('/record', async (res: HttpResponse, req: HttpRequest) => {
     const encodedData = stringifyArrayBuffer(data);
     const recordingUrl = encodedData.split('RecordingUrl=')[1]?.split('&')[0];
     const decodedRecordingUrl = decodeURIComponent(recordingUrl);
-    recordConversation(fileName, 'admin', decodedRecordingUrl);
+    recordConversation(
+      fileName,
+      'admin',
+      decodedRecordingUrl,
+      null,
+      phoneToCall
+    );
   });
   if (!res.aborted) {
     res.cork(() => {

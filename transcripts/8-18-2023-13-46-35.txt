@@ -1,0 +1,7 @@
+
+user: Date of birth?
+assistant: Hi, I was just calling to see if you had a medication in stock?
+GPT Time: 411
+user: Date of birth?
+assistant: I'm not a customer, but I'm calling to see if you have a specific medication in stock.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REf11d7390e3823aad6f401399f1b843d0

@@ -1,0 +1,7 @@
+
+user: Hello?
+assistant: Hi
+GPT Time: 689
+user: What's the medication?
+assistant: It's Adderall, 20 milligram instant release.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REaf0cb20c2cb7803e4f030fa70a6cc7fa

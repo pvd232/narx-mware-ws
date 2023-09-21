@@ -1,0 +1,15 @@
+
+user: Thank you for calling CD chemist.
+assistant: ''
+GPT Time: 831
+user: Located at three thirty five Graham Avenue in Brooklyn,
+assistant: ''
+user: Please stay on the line for the next available pharmacy staff member.
+assistant: ''
+user: Good afternoon. City Thomas.
+assistant: Hi, I was calling to see if you have a medication in stock?
+user: What are you looking for?
+assistant: It's Adderall, 20 milligram instant release.
+user: No. It's all on back order right now. We don't have anything in stock.
+assistant: Understood, thanks for checking. Goodbye.
+admin: +17183870124

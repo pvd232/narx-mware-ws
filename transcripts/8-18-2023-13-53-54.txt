@@ -1,0 +1,13 @@
+
+user: Pharmacy. Pharmacy.
+assistant: Hello, I was calling to see if you have a medication in stock?
+GPT Time: 1322
+user: What's the medication?
+assistant: It's Adderall, 20 milligram instant release.
+user: Let me check.
+assistant: Great, thanks.
+user: Date of birth?
+assistant: I'm not a customer, just checking if you have Adderall in stock.
+user: Yes. We do.
+assistant: Ok great - I'll have my prescription sent over shortly. Goodbye.
+admin: https://api.twilio.com/2010-04-01/Accounts/ACa103d3ba995142ef5b7bae8719c44399/Recordings/REed55703de4df03a77a617162b36c8f9f

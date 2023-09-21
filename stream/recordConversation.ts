@@ -5,10 +5,17 @@ export const recordConversation = (
   role: string,
   message: string,
   gptTime: number | null = null,
+  pharmacyName: string | null = null,
   callback?: () => void
 ) => {
   if (!gptTime) {
-    let data = `\n${role}: ${message}`;
+    let data = (() => {
+      if (!pharmacyName) {
+        return `\n${role}: ${message}`;
+      } else {
+        return `\n${role}: ${pharmacyName}`;
+      }
+    })();
     fs.appendFile(`${fileName}`, data, (err) => {
       if (err) {
         console.log('error recording conversation', err);

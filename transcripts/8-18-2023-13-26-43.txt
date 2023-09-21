@@ -1,0 +1,10 @@
+
+user: Eight.
+assistant: Hi, I was just calling to see if you had a medication in stock?
+GPT Time: 352
+user: And extension, you may dial it at any time.
+assistant: ''
+user: Location, dial one.
+assistant: ''
+user: Occurs or to check the status of your order,
+assistant: ''

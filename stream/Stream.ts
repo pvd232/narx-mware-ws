@@ -4,7 +4,6 @@ import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscri
 import { XIStream } from './XIStream.ts';
 import { ChatCompletionMessage } from 'openai/resources/chat';
 import { recordConversation } from './recordConversation.ts';
-import { getGptReply } from '../helpers/getGptReply.ts';
 import { Twilio } from 'twilio';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 import { isNumber } from '../utils/isNumber.ts';
@@ -29,6 +28,18 @@ export class Stream {
   private isFirstMessage = true;
   private responseTime = 0;
   private receivedTime = 0;
+  private numberLookup = new Map([
+    ['zero', 0],
+    ['one', 1],
+    ['two', 2],
+    ['three', 3],
+    ['four', 4],
+    ['five', 5],
+    ['six', 6],
+    ['seven', 7],
+    ['eight', 8],
+    ['nine', 9],
+  ]);
 
   constructor(
     twilioClient: Twilio,
@@ -99,31 +110,44 @@ export class Stream {
           console.log('pharmReply', pharmReply);
           recordConversation(this.fileName, 'user', pharmReply);
 
-          // const gptStream = await (async () => {
-          //   if (this.streamingStatus === StreamingStatus.IVR) {
-          //     const chat = await getGptReplyAzure(this.messages, 'gpt-4');
-          //     return chat;
-          //   } else {
-          //     const chat = await getGptReplyAzure(this.messages, 'gpt-4');
-          //     return chat;
-          //   }
-          // })();
-          const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
+          const gptStream = await (async () => {
+            if (this.streamingStatus === StreamingStatus.IVR) {
+              const chat = await getGptReplyAzure(this.messages, 'gpt-4');
+              return chat;
+            } else {
+              const chat = await getGptReplyAzure(
+                this.messages,
+                'gpt-3.5-turbo'
+              );
+              return chat;
+            }
+          })();
+          // const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
           let response = '';
           let completeResponse = '';
 
           for await (const part of gptStream) {
-            const text = part.choices[0]?.delta?.content || '';
+            const text: string = part.choices[0]?.delta?.content || '';
             // For IVR handling response will be empty
             if (text !== '') {
               completeResponse += text;
-              // Test is text is an integer using parseInt
+              // if (text.toLowerCase() === 'hi') {
+              //   const fileName = getRandomCacheFile();
+              //   respondWithVoice(
+              //     this.twilioWSConnection,
+              //     fileName,
+              //     this.streamSid
+              //   ).then((responseTime) => (this.receivedTime = responseTime!));
+              //   response = '';
+              //   break;
+              // }
               if (response.toLowerCase().includes('goodbye')) {
                 this.streamingStatus = StreamingStatus.CLOSING;
                 this.xiStream.closingConnection();
               } else if (
                 response.toLowerCase().includes('press') &&
-                isNumber(text)
+                (this.numberLookup.get(text.trim()) !== undefined ||
+                  isNumber(text))
               ) {
                 // Close out everything
                 this.streamingStatus = StreamingStatus.CLOSED;
@@ -138,15 +162,6 @@ export class Stream {
                         </Connect>
                       </Response>`,
                 });
-                break;
-              } else if (response.toLowerCase() === 'hi') {
-                const fileName = getRandomCacheFile();
-                respondWithVoice(
-                  this.twilioWSConnection,
-                  fileName,
-                  this.streamSid
-                ).then((responseTime) => (this.receivedTime = responseTime!));
-                response = '';
                 break;
               } else if (
                 response.split(' ').length < 1 ||
@@ -178,6 +193,7 @@ export class Stream {
             this.fileName,
             'assistant',
             completeResponse,
+            null,
             null,
             () => {
               console.log('Recording complete');
