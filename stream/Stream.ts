@@ -1,26 +1,21 @@
 import { WebSocket } from 'uWebSockets.js';
+import WebSocketClient from 'ws';
 import { TwilioUserData } from '../types/interface/twilio/TwilioUserData.ts';
 import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscription';
 import { XIStream } from './XIStream.ts';
 import { ChatCompletionMessage } from 'openai/resources/chat';
 import { recordConversation } from './recordConversation.ts';
-import { Twilio } from 'twilio';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
-import { isNumber } from '../utils/isNumber.ts';
 import { getGptReplyAzure } from '../helpers/getGptReplyAzure.ts';
-import { detectIVR } from '../helpers/detectIVR.ts';
-import { respondWithVoice } from './responseWithVoice.ts';
-import { getRandomCacheFile } from './getRandomCacheFile.ts';
+import { ConnectionStatus } from '../types/enums/ConnectionStatus.ts';
 
 export class Stream {
-  private twilioClient: Twilio;
   private twilioWSConnection: WebSocket<TwilioUserData>;
 
-  private deepgramStream: LiveTranscription;
+  public deepgramStream: LiveTranscription;
   private xiStream: XIStream;
   public streamingStatus: StreamingStatus = StreamingStatus.PHARM;
   private messages: ChatCompletionMessage[] = [];
-  private hostName: string;
   public callSid: string;
   public streamSid: string;
   private fileName: string;
@@ -28,37 +23,21 @@ export class Stream {
   private isFirstMessage = true;
   private responseTime = 0;
   private receivedTime = 0;
-  private numberLookup = new Map([
-    ['zero', 0],
-    ['one', 1],
-    ['two', 2],
-    ['three', 3],
-    ['four', 4],
-    ['five', 5],
-    ['six', 6],
-    ['seven', 7],
-    ['eight', 8],
-    ['nine', 9],
-  ]);
 
   constructor(
-    twilioClient: Twilio,
     twilioWSConnection: WebSocket<TwilioUserData>,
     deepgramStream: LiveTranscription,
     xiStream: XIStream,
     messages: ChatCompletionMessage[],
-    hostName: string,
     callSid: string,
     streamSid: string,
     fileName: string
   ) {
-    this.twilioClient = twilioClient;
     this.twilioWSConnection = twilioWSConnection;
     this.deepgramStream = deepgramStream;
     this.deepgramStream.on('open', this.prepareWebsockets.bind(this));
     this.xiStream = xiStream;
     this.messages = messages;
-    this.hostName = hostName;
     this.callSid = callSid;
     this.streamSid = streamSid;
     this.fileName = fileName;
@@ -76,6 +55,10 @@ export class Stream {
       console.log('Deepgram transcription closed')
     );
   }
+  public reinitializeDeepgramConnection(deepgramStream: LiveTranscription) {
+    this.deepgramStream = deepgramStream;
+    this.prepareWebsockets();
+  }
   private async handleMessageFromDeepgram(message: string) {
     const data = JSON.parse(message);
     switch (data.type) {
@@ -85,23 +68,21 @@ export class Stream {
           pharmReply !== '' &&
           this.streamingStatus !== StreamingStatus.CLOSED
         ) {
-          this.xiStream.reinitializeConnection();
+          this.xiStream.reinitializeConnection(
+            new WebSocketClient(
+              `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
+            )
+          );
+          this.streamingStatus = StreamingStatus.GPT;
+
           if (this.isFirstMessage) {
             this.responseTime = Date.now();
             this.isFirstMessage = false;
-            if (detectIVR(pharmReply)) {
-              this.streamingStatus = StreamingStatus.IVR;
-            } else {
-              this.streamingStatus = StreamingStatus.GPT;
-              this.messages.push({
-                role: 'user',
-                content: 'hello',
-              });
-            }
+            this.messages.push({
+              role: 'user',
+              content: 'hello',
+            });
           } else {
-            if (this.streamingStatus !== StreamingStatus.IVR) {
-              this.streamingStatus = StreamingStatus.GPT;
-            }
             this.messages.push({
               role: 'user',
               content: pharmReply,
@@ -110,60 +91,15 @@ export class Stream {
           console.log('pharmReply', pharmReply);
           recordConversation(this.fileName, 'user', pharmReply);
 
-          const gptStream = await (async () => {
-            if (this.streamingStatus === StreamingStatus.IVR) {
-              const chat = await getGptReplyAzure(this.messages, 'gpt-4');
-              return chat;
-            } else {
-              const chat = await getGptReplyAzure(
-                this.messages,
-                'gpt-3.5-turbo'
-              );
-              return chat;
-            }
-          })();
-          // const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
+          const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
           let response = '';
           let completeResponse = '';
 
           for await (const part of gptStream) {
             const text: string = part.choices[0]?.delta?.content || '';
-            // For IVR handling response will be empty
             if (text !== '') {
               completeResponse += text;
-              // if (text.toLowerCase() === 'hi') {
-              //   const fileName = getRandomCacheFile();
-              //   respondWithVoice(
-              //     this.twilioWSConnection,
-              //     fileName,
-              //     this.streamSid
-              //   ).then((responseTime) => (this.receivedTime = responseTime!));
-              //   response = '';
-              //   break;
-              // }
-              if (response.toLowerCase().includes('goodbye')) {
-                this.streamingStatus = StreamingStatus.CLOSING;
-                this.xiStream.closingConnection();
-              } else if (
-                response.toLowerCase().includes('press') &&
-                (this.numberLookup.get(text.trim()) !== undefined ||
-                  isNumber(text))
-              ) {
-                // Close out everything
-                this.streamingStatus = StreamingStatus.CLOSED;
-                this.xiStream.closeConnection();
-                const ivrResponse = text;
-                recordConversation(this.fileName, 'assistant', response);
-                this.twilioClient.calls(this.callSid!).update({
-                  twiml: `<Response>
-                        <Play digits="${ivrResponse}"> </Play>
-                        <Connect>
-                          <Stream url="wss://${this.hostName}/"> </Stream>
-                        </Connect>
-                      </Response>`,
-                });
-                break;
-              } else if (
+              if (
                 response.split(' ').length < 1 ||
                 !text.includes(' ') ||
                 !text.match(this.regExpresion)
@@ -181,10 +117,7 @@ export class Stream {
             this.xiStream.sendXIMessage(response);
           }
           this.xiStream.endStream();
-          if (completeResponse === 'hi') {
-            completeResponse =
-              'Hi, I was just calling to see if you had a medication in stock?';
-          }
+
           this.messages.push({
             role: 'assistant',
             content: completeResponse,
@@ -206,8 +139,7 @@ export class Stream {
   }
   public handleMessageFromTwilio(message: string) {
     if (
-      (this.streamingStatus === StreamingStatus.PHARM ||
-        this.streamingStatus === StreamingStatus.IVR) &&
+      this.streamingStatus === StreamingStatus.PHARM &&
       this.deepgramStream.getReadyState() === 1
     ) {
       this.deepgramStream.send(Buffer.from(message, 'base64'));

@@ -63,7 +63,6 @@ app.ws('/*', {
         console.log(`Starting Media Stream ${msg.streamSid}`);
         const twilioStartMsg = msg as StartEvent;
         const newStream = new Stream(
-          twilioClient!,
           ws,
           new Deepgram(process.env.DEEPGRAM_API_KEY!).transcription.live(
             deepgramConfig
@@ -75,7 +74,6 @@ app.ws('/*', {
             new Cargo(ws, twilioStartMsg.streamSid)
           ),
           messages,
-          hostName,
           callSid,
           twilioStartMsg.streamSid,
           fileName
@@ -85,10 +83,19 @@ app.ws('/*', {
       case MessageEvent.Media:
         // Write Media Packets to the recognize stream continuously
         const twilioMediaEvent = msg as MediaEvent;
-        streamService
-          .get(twilioMediaEvent.streamSid)!
-          .handleMessageFromTwilio(twilioMediaEvent.media.payload);
-        // stream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
+
+        // Reinitialize connection (client checks if necessary)
+        const stream = streamService.get(twilioMediaEvent.streamSid)!;
+
+        if (stream.deepgramStream.getReadyState() !== 1) {
+          stream.reinitializeDeepgramConnection(
+            new Deepgram(process.env.DEEPGRAM_API_KEY!).transcription.live(
+              deepgramConfig
+            )
+          );
+        }
+        // Handle Media Packets
+        stream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
 
         break;
       case MessageEvent.Mark:
@@ -96,18 +103,13 @@ app.ws('/*', {
         console.log('Mark');
 
         if (twilioMarkEvent.mark.name === MarkName.COMPLETE) {
+          streamService.get(twilioMarkEvent.streamSid)!.streamingStatus =
+            StreamingStatus.PHARM;
           if (responseTime === 0) {
             responseTime = 1;
             streamService.get(twilioMarkEvent.streamSid)!.recordGPTTime();
           }
           console.log('Mark Complete');
-          if (
-            streamService.get(twilioMarkEvent.streamSid)!.streamingStatus !==
-            StreamingStatus.IVR
-          ) {
-            streamService.get(twilioMarkEvent.streamSid)!.streamingStatus =
-              StreamingStatus.PHARM;
-          }
         } else if (twilioMarkEvent.mark.name === MarkName.TERMINATE) {
           console.log('Mark Terminate');
           setTimeout(
@@ -164,29 +166,6 @@ app.post('/', (res: HttpResponse, req: HttpRequest) => {
 
 app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const peter = '+15126456898';
-  const blaise = '+17132565720';
-  const mom = '+15125731975';
-  const nimi = '+16363685761';
-  const maheep = '+12102138521';
-  const cvs1 = '+16464165752';
-  const LICChemists = '+17183928049';
-  const windsor = '+12122471538';
-  const arrow = '+12122458469';
-  const jHeights = '+17187791444';
-  const esco = '+12122468169';
-  const apotheco = '+12128890022';
-  const naturesCure = '+12125459393';
-  const avenueChemists = '+17185451010';
-  const kissenaDrugs = '+17187937658';
-  const davidsPharmacy = '+12124777788';
-  const northSide = '+17183876566';
-  const central = '+19293970331';
-  const omm = '+17185004928';
-  const santaMaria = '+17183880745';
-  const southside = '+17187827200';
-  const saiApteak = '+17183498989';
-  const cityChemist = '+17183870124';
-  const kings = '+17182303535';
   phoneToCall = peter;
 
   twilioClient = twilio(

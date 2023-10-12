@@ -48,14 +48,12 @@ export class XIStream {
       this.sendXIMessage(this.queuedMessages.shift() ?? '');
     }
   }
-  public reinitializeConnection() {
+  public reinitializeConnection(xiWSClient: WebSocketClient) {
     this.streamingStatus = StreamingStatus.GPT;
     this.cargo.streamingStatus = StreamingStatus.GPT;
-    // IF the connection is not open or connecting, reinitialize the connection
+    // IF the connection is not open nor connecting, reinitialize the connection
     if (this.xiWSClient.readyState !== 1 && this.xiWSClient.readyState !== 0) {
-      this.xiWSClient = new WebSocketClient(
-        `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
-      );
+      this.xiWSClient = xiWSClient;
       this.xiWSClient.on('open', this.prepareWebsockets.bind(this));
       this.xiWSClient.on('connectFailed', (error: any) =>
         console.log('XI WebSocket client connect error: ' + error.toString())
