@@ -87,13 +87,13 @@ app.ws('/*', {
         // Reinitialize connection (client checks if necessary)
         const stream = streamService.get(twilioMediaEvent.streamSid)!;
 
-        if (stream.deepgramStream.getReadyState() !== 1) {
-          stream.reinitializeDeepgramConnection(
-            new Deepgram(process.env.DEEPGRAM_API_KEY!).transcription.live(
-              deepgramConfig
-            )
-          );
-        }
+        // if (stream.deepgramStream.getReadyState() !== 1) {
+        //   stream.reinitializeDeepgramConnection(
+        //     new Deepgram(process.env.DEEPGRAM_API_KEY!).transcription.live(
+        //       deepgramConfig
+        //     )
+        //   );
+        // }
         // Handle Media Packets
         stream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
 
@@ -165,7 +165,7 @@ app.post('/', (res: HttpResponse, req: HttpRequest) => {
 });
 
 app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
-  const peter = '+15126456898';
+  const peter = '+16363685761';
   phoneToCall = peter;
 
   twilioClient = twilio(

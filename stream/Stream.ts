@@ -142,6 +142,7 @@ export class Stream {
       this.streamingStatus === StreamingStatus.PHARM &&
       this.deepgramStream.getReadyState() === 1
     ) {
+      console.log('Sending message to Deepgram');
       this.deepgramStream.send(Buffer.from(message, 'base64'));
     }
   }
