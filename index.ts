@@ -187,7 +187,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const saiApteak = '+17183498989';
   const cityChemist = '+17183870124';
   const kings = '+17182303535';
-  phoneToCall = peter;
+  phoneToCall = nimi;
 
   twilioClient = twilio(
     process.env.TWILIO_ACCOUNT_SID,
