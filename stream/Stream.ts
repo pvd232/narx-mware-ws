@@ -89,19 +89,14 @@ export class Stream {
           if (this.isFirstMessage) {
             this.responseTime = Date.now();
             this.isFirstMessage = false;
-            if (detectIVR(pharmReply)) {
-              this.streamingStatus = StreamingStatus.IVR;
-            } else {
-              this.streamingStatus = StreamingStatus.GPT;
-              this.messages.push({
-                role: 'user',
-                content: 'hello',
-              });
-            }
+
+            this.streamingStatus = StreamingStatus.GPT;
+            this.messages.push({
+              role: 'user',
+              content: 'hello',
+            });
           } else {
-            if (this.streamingStatus !== StreamingStatus.IVR) {
-              this.streamingStatus = StreamingStatus.GPT;
-            }
+            this.streamingStatus = StreamingStatus.GPT;
             this.messages.push({
               role: 'user',
               content: pharmReply,
@@ -110,19 +105,7 @@ export class Stream {
           console.log('pharmReply', pharmReply);
           recordConversation(this.fileName, 'user', pharmReply);
 
-          const gptStream = await (async () => {
-            if (this.streamingStatus === StreamingStatus.IVR) {
-              const chat = await getGptReplyAzure(this.messages, 'gpt-4');
-              return chat;
-            } else {
-              const chat = await getGptReplyAzure(
-                this.messages,
-                'gpt-3.5-turbo'
-              );
-              return chat;
-            }
-          })();
-          // const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
+          const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
           let response = '';
           let completeResponse = '';
 
@@ -131,39 +114,7 @@ export class Stream {
             // For IVR handling response will be empty
             if (text !== '') {
               completeResponse += text;
-              // if (text.toLowerCase() === 'hi') {
-              //   const fileName = getRandomCacheFile();
-              //   respondWithVoice(
-              //     this.twilioWSConnection,
-              //     fileName,
-              //     this.streamSid
-              //   ).then((responseTime) => (this.receivedTime = responseTime!));
-              //   response = '';
-              //   break;
-              // }
-              if (response.toLowerCase().includes('goodbye')) {
-                this.streamingStatus = StreamingStatus.CLOSING;
-                this.xiStream.closingConnection();
-              } else if (
-                response.toLowerCase().includes('press') &&
-                (this.numberLookup.get(text.trim()) !== undefined ||
-                  isNumber(text))
-              ) {
-                // Close out everything
-                this.streamingStatus = StreamingStatus.CLOSED;
-                this.xiStream.closeConnection();
-                const ivrResponse = text;
-                recordConversation(this.fileName, 'assistant', response);
-                this.twilioClient.calls(this.callSid!).update({
-                  twiml: `<Response>
-                        <Play digits="${ivrResponse}"> </Play>
-                        <Connect>
-                          <Stream url="wss://${this.hostName}/"> </Stream>
-                        </Connect>
-                      </Response>`,
-                });
-                break;
-              } else if (
+              if (
                 response.split(' ').length < 1 ||
                 !text.includes(' ') ||
                 !text.match(this.regExpresion)
@@ -177,6 +128,7 @@ export class Stream {
               }
             }
           }
+          console.log('response', response);
           if (response !== '') {
             this.xiStream.sendXIMessage(response);
           }

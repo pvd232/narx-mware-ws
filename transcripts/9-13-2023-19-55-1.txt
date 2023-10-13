@@ -1,0 +1,5 @@
+
+user: Who's calling?
+assistant: Hello, I was calling to see if you have a medication in stock?
+GPT Time: 1642
+admin: +16363685761

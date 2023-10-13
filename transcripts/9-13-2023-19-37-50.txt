@@ -1,0 +1,12 @@
+
+user: Hello?
+assistant: 
+GPT Time: 843
+user: Hello? Hello?
+assistant: 
+admin: +16363685761
+user: What medication were you looking for?
+assistant: 
+user: Sorry. I didn't catch that.
+assistant: 
+admin: +16363685761
