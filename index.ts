@@ -63,7 +63,6 @@ app.ws('/*', {
         console.log(`Starting Media Stream ${msg.streamSid}`);
         const twilioStartMsg = msg as StartEvent;
         const newStream = new Stream(
-          twilioClient!,
           ws,
           new Deepgram(process.env.DEEPGRAM_API_KEY!).transcription.live(
             deepgramConfig
@@ -75,7 +74,6 @@ app.ws('/*', {
             new Cargo(ws, twilioStartMsg.streamSid)
           ),
           messages,
-          hostName,
           callSid,
           twilioStartMsg.streamSid,
           fileName
@@ -88,8 +86,6 @@ app.ws('/*', {
         streamService
           .get(twilioMediaEvent.streamSid)!
           .handleMessageFromTwilio(twilioMediaEvent.media.payload);
-        // stream.handleMessageFromTwilio(twilioMediaEvent.media.payload);
-
         break;
       case MessageEvent.Mark:
         const twilioMarkEvent = msg as MarkEvent;
@@ -101,13 +97,9 @@ app.ws('/*', {
             streamService.get(twilioMarkEvent.streamSid)!.recordGPTTime();
           }
           console.log('Mark Complete');
-          if (
-            streamService.get(twilioMarkEvent.streamSid)!.streamingStatus !==
-            StreamingStatus.IVR
-          ) {
-            streamService.get(twilioMarkEvent.streamSid)!.streamingStatus =
-              StreamingStatus.PHARM;
-          }
+
+          streamService.get(twilioMarkEvent.streamSid)!.streamingStatus =
+            StreamingStatus.PHARM;
         } else if (twilioMarkEvent.mark.name === MarkName.TERMINATE) {
           console.log('Mark Terminate');
           setTimeout(

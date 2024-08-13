@@ -1,0 +1,9 @@
+
+user: Hello?
+assistant: Hey there! It's great to meet you. How's it going?
+GPT Time: 1539
+user: Good. How are you?
+assistant: I'm doing well, thank you for asking. I'm excited to have this interview with you today. So, let's get started! Can you please introduce yourself and tell me a bit about your background?
+user: Yeah. Definitely. I would
+assistant: love to. My name is Sarah and I recently graduated from the University of California, Berkeley with a degree in Economics. During my time there, I developed a strong interest in business strategy and problem-solving, which led me to pursue a career in management
+admin: +16363685761

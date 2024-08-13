@@ -1,0 +1,23 @@
+
+user: Hello?
+user: Hello?
+user: Hello?
+user: Hello?
+user: Hello?
+assistant: Hey there! It's great to meet you. How's it going?
+assistant: Hey there! It's great to meet you. How's it going?
+assistant: Hey there! It's great to meet you. How's it going?
+assistant: Hey there! It's great to meet you. How's it going?
+GPT Time: 1542
+assistant: Hey there! It's great to meet you. How's it going?
+user: Good. How are you?
+user: Good. How are you?
+user: Good. How are you?
+user: Good. How are you?
+user: Good. How are you?
+assistant: I'm doing well, thank you for asking. So, let's get started with the interview. I'll start by giving you a brief background about myself. My name is Alex and I went to the University of Michigan, where I double majored
+assistant: I'm doing well, thank you for asking. So, let's get started. I'll start by telling you a bit about myself. My name is Alex and I went to the University of Michigan, where I double majored in finance and computer
+assistant: I'm doing well, thank you for asking. So, let's get started with the interview. I'll start by telling you a bit about myself. My name is Alex and I went to the University of Michigan, where I double majored in
+assistant: I'm doing well, thank you for asking. So, let's get started with the interview. I'll start by giving you a brief background about myself. My name is Alex and I went to the University of Michigan, where I double majored
+assistant: I'm doing well, thank you for asking. So, let's get started with the interview. I'll start by giving you a brief background about myself. My name is Alex and I went to the University of Michigan, where I double majored
+admin: +16363685761

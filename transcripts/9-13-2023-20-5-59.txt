@@ -1,0 +1,19 @@
+
+user: Hello?
+assistant: Hey there! It's great to meet you. How's it going?
+GPT Time: 1333
+user: Good. How are you?
+assistant: I'm doing well, thank you for asking. I'm excited to have this interview with you today. So, let's get started! To give you a bit of background about myself, my name is Alex and I went to the University of Michigan
+user: Okay. Great. Got it.
+assistant: Great! Now, let me tell you a bit more about my background. I double majored in finance and computer science at the University of Michigan. After graduating, I joined BCG, a management consulting firm, where I primarily focus on commercial due
+user: Okay. Got it.
+assistant: Alright, now it's your turn. Could you please tell me a bit about your background? Where did you go to school, what did you study, and what made you interested in pursuing a career in consulting?
+user: Yeah.
+assistant: I'm sorry, could you please provide me with more information about your background? Where did you go to school, what did you study, and what made you interested in pursuing a career in consulting?
+user: Yeah. Definitely. So I went to UTF
+assistant: I'm sorry, but I didn't quite catch that. Could you please repeat where you went to school and what you studied?
+user: in. I studied finance,
+assistant: Great! So you went to UTF and studied finance. That's a solid background for a career in consulting. What made you interested in pursuing a career in consulting?
+user: I find it interesting.
+assistant: That's great to hear! Consulting can be a very dynamic and intellectually stimulating field. It offers the opportunity to work on a wide range of projects, solve complex problems, and make a significant impact on businesses. Is there anything specific about consulting that you
+admin: +16363685761

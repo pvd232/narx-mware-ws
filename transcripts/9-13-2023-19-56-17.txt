@@ -1,0 +1,10 @@
+
+admin: +16363685761
+user: Hi.
+assistant: Hey there! It's great to meet you. How's it going?
+GPT Time: 1489
+user: One.
+assistant: Hey One, it's great to meet you. How can I assist you today?
+user: Good. It's going good. How are you?
+assistant: I'm doing well, thank you for asking. As a consultant at BCG, I'm always ready to tackle new challenges. So, let's get started with the interview. Can you please introduce yourself and tell me a bit about your background?
+admin: +16363685761

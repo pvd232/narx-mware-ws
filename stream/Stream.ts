@@ -4,23 +4,18 @@ import { LiveTranscription } from '@deepgram/sdk/dist/transcription/liveTranscri
 import { XIStream } from './XIStream.ts';
 import { ChatCompletionMessage } from 'openai/resources/chat';
 import { recordConversation } from './recordConversation.ts';
-import { Twilio } from 'twilio';
 import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
-import { isNumber } from '../utils/isNumber.ts';
 import { getGptReplyAzure } from '../helpers/getGptReplyAzure.ts';
-import { detectIVR } from '../helpers/detectIVR.ts';
-import { respondWithVoice } from './responseWithVoice.ts';
-import { getRandomCacheFile } from './getRandomCacheFile.ts';
-
+import { deepgramConfig } from '../config/deepgramConfig.ts';
+import pkg from '@deepgram/sdk';
+const { Deepgram } = pkg;
 export class Stream {
-  private twilioClient: Twilio;
   private twilioWSConnection: WebSocket<TwilioUserData>;
 
   private deepgramStream: LiveTranscription;
   private xiStream: XIStream;
   public streamingStatus: StreamingStatus = StreamingStatus.PHARM;
   private messages: ChatCompletionMessage[] = [];
-  private hostName: string;
   public callSid: string;
   public streamSid: string;
   private fileName: string;
@@ -28,37 +23,22 @@ export class Stream {
   private isFirstMessage = true;
   private responseTime = 0;
   private receivedTime = 0;
-  private numberLookup = new Map([
-    ['zero', 0],
-    ['one', 1],
-    ['two', 2],
-    ['three', 3],
-    ['four', 4],
-    ['five', 5],
-    ['six', 6],
-    ['seven', 7],
-    ['eight', 8],
-    ['nine', 9],
-  ]);
+  private queuedMsgs: string[] = [];
 
   constructor(
-    twilioClient: Twilio,
     twilioWSConnection: WebSocket<TwilioUserData>,
     deepgramStream: LiveTranscription,
     xiStream: XIStream,
     messages: ChatCompletionMessage[],
-    hostName: string,
     callSid: string,
     streamSid: string,
     fileName: string
   ) {
-    this.twilioClient = twilioClient;
     this.twilioWSConnection = twilioWSConnection;
     this.deepgramStream = deepgramStream;
     this.deepgramStream.on('open', this.prepareWebsockets.bind(this));
     this.xiStream = xiStream;
     this.messages = messages;
-    this.hostName = hostName;
     this.callSid = callSid;
     this.streamSid = streamSid;
     this.fileName = fileName;
@@ -72,9 +52,15 @@ export class Stream {
       'transcriptReceived',
       this.handleMessageFromDeepgram.bind(this)
     );
-    this.deepgramStream.on('close', () =>
-      console.log('Deepgram transcription closed')
-    );
+    this.deepgramStream.on('close', () => {
+      console.log('Deepgram transcription closed');
+    });
+    if (this.queuedMsgs.length > 0) {
+      this.queuedMsgs.forEach((msg) => {
+        this.deepgramStream.send(Buffer.from(msg, 'base64'));
+      });
+      this.queuedMsgs = [];
+    }
   }
   private async handleMessageFromDeepgram(message: string) {
     const data = JSON.parse(message);
@@ -158,17 +144,29 @@ export class Stream {
   }
   public handleMessageFromTwilio(message: string) {
     if (
-      (this.streamingStatus === StreamingStatus.PHARM ||
-        this.streamingStatus === StreamingStatus.IVR) &&
+      this.streamingStatus === StreamingStatus.PHARM &&
       this.deepgramStream.getReadyState() === 1
     ) {
       this.deepgramStream.send(Buffer.from(message, 'base64'));
+    } else if (
+      this.streamingStatus === StreamingStatus.PHARM &&
+      this.deepgramStream.getReadyState() !== 1
+    ) {
+      this.queuedMsgs.push(message);
+      this.deepgramStream.removeAllListeners();
+
+      this.deepgramStream = new Deepgram(
+        process.env.DEEPGRAM_API_KEY!
+      ).transcription.live(deepgramConfig);
+      this.deepgramStream.on('open', this.prepareWebsockets.bind(this));
     }
   }
   public closeConnection() {
     if (this.streamingStatus !== StreamingStatus.CLOSED) {
       this.streamingStatus = StreamingStatus.CLOSED;
-      this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
+      if (this.deepgramStream.getReadyState() === 1) {
+        this.deepgramStream.send(JSON.stringify({ type: 'CloseStream' }));
+      }
       this.xiStream.closeConnection();
       this.twilioWSConnection.end(1000);
     }

@@ -1,0 +1,10 @@
+
+user: Hello?
+assistant: Hey there! It's great to meet you. How's it going?
+GPT Time: 1408
+user: Hi. I'm doing well.
+assistant: That's great to hear! So, let's get started. I'm Alex, and I went to the University of Michigan where I double majored in finance and computer science. After graduation, I joined BCG as a consultant, primarily focusing on
+user: Sorry. You cut out. What was that?
+assistant: Apologies for the interruption. I was saying that after graduation, I joined BCG as a consultant, primarily focusing on commercial due diligences. Now, I'd love to hear a bit about your background. Could you please tell me where you went
+user: Hello?
+assistant: Hey there! It's great to meet you. How's it going?

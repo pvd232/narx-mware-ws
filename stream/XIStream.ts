@@ -53,6 +53,7 @@ export class XIStream {
     this.cargo.streamingStatus = StreamingStatus.GPT;
     // IF the connection is not open or connecting, reinitialize the connection
     if (this.xiWSClient.readyState !== 1 && this.xiWSClient.readyState !== 0) {
+      this.xiWSClient.removeAllListeners();
       this.xiWSClient = new WebSocketClient(
         `wss://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_LABS_VOICE_ID}/stream-input?model_type=${process.env.ELEVEN_LABS_MODEL_ID}&optimize_streaming_latency=4`
       );

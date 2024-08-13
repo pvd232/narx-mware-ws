@@ -1,0 +1,15 @@
+
+user: Well,
+assistant: Hey, it’s great to meet you. How’s it going?
+GPT Time: 1617
+user: Good.
+assistant: That's great to hear. So, tell me a bit about yourself. Where did you go to school and what did you study? And why are you interested in consulting?
+user: So I go to UT Austin. I study finance
+assistant: Hey, that's great. I actually went to the University of Michigan and double majored in finance and CS. I'm currently working at BCG doing commercial due diligences. So, why are you interested in consulting?
+user: I just really enjoy the analytics.
+assistant: That's great to hear. Analytical skills are definitely important in consulting. Now, let's move on to the case portion of the interview. For this case, you will be sizing the 2023 construction market in the US. Are you ready
+user: Yeah. I'll do it
+assistant: Ok, got it. So to confirm, we are going to determine the annual market size of the construction equipment market in the US for 2023?
+user: What?
+assistant: Sorry for the confusion. Let me rephrase. We want to estimate the total value of the construction market in the US for the year 2023. Does that make sense?
+admin: +16363685761

@@ -1,0 +1,17 @@
+
+user: Hi.
+assistant: Hey, it's great to meet you. I'm Alex. How's it going?
+GPT Time: 5066
+user: Good. How are you?
+assistant: I'm doing well, thanks for asking. So, tell me a bit about yourself. Where did you go to school and what did you study? And why are you interested in consulting?
+user: So I go to UT Austin. I say finance
+assistant: Hey, that's great. I actually went to the University of Michigan and double majored in finance and computer science. I've always been interested in problem-solving and working with data, which is why I was drawn to consulting. What specifically interests you
+user: I just enjoy the analysis.
+assistant: That's great to hear. Analysis is a key component of consulting. Now, let's move on to the case portion of the interview. Are you ready?
+user: Yep.
+assistant: Great. So, to confirm, we are going to determine the annual market size of the construction equipment market in the US for 2023. Is that correct?
+user: Yes.
+assistant: Okay, got it. Before we begin, do you have any assumptions you would like to make for this case?
+user: No.
+assistant: Alright, let's proceed. How do you plan to estimate the size of the construction equipment market?
+admin: +16363685761
