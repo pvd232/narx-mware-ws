@@ -6,7 +6,7 @@
 
 # ------> Setup Instructions <------
 
-# ------> Pre-installation Requirements
+# ------> Pre-installation Requirements <------
 
 # 1. Node version 20.5.1 must be installed on your machine and added as a PATH variable (find an online article to do this). You can test your installation by entering "which node" into your terminal, and it should print out the location of Node on your machine. Make sure the version is 20.5.1
 
@@ -16,7 +16,7 @@
 
 # 4. Bun version 0.8.1 must be installed on your machine and added as a PATH variable, you can test this by entering "which bun" into your terminal, and it should print out the location of bun on your machine
 
-# ------> Initial Project Set Up Instructions (OSX, if using Windows, look up the equivalent powershell commands)
+# ------> Initial Project Set Up Instructions (OSX, if using Windows, look up the equivalent powershell commands) <------
 
 # Node setup
 
