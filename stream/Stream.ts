@@ -122,7 +122,6 @@ export class Stream {
               return chat;
             }
           })();
-          // const gptStream = await getGptReplyAzure(this.messages, 'gpt-4');
           let response = '';
           let completeResponse = '';
 
@@ -131,16 +130,6 @@ export class Stream {
             // For IVR handling response will be empty
             if (text !== '') {
               completeResponse += text;
-              // if (text.toLowerCase() === 'hi') {
-              //   const fileName = getRandomCacheFile();
-              //   respondWithVoice(
-              //     this.twilioWSConnection,
-              //     fileName,
-              //     this.streamSid
-              //   ).then((responseTime) => (this.receivedTime = responseTime!));
-              //   response = '';
-              //   break;
-              // }
               if (response.toLowerCase().includes('goodbye')) {
                 this.streamingStatus = StreamingStatus.CLOSING;
                 this.xiStream.closingConnection();
