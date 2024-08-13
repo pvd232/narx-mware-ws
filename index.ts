@@ -163,11 +163,8 @@ app.post('/', (res: HttpResponse, req: HttpRequest) => {
 });
 
 app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
-  const peter = '+15126456898';
-  const blaise = '+17132565720';
-  const mom = '+15125731975';
-  const nimi = '+16363685761';
-  const maheep = '+12102138521';
+  // Testing, choose a number to call
+  const yourNumber = '+15125731975';
   const cvs1 = '+16464165752';
   const LICChemists = '+17183928049';
   const windsor = '+12122471538';
@@ -187,7 +184,7 @@ app.get('/outbound_call', async (res: HttpResponse, _req: HttpRequest) => {
   const saiApteak = '+17183498989';
   const cityChemist = '+17183870124';
   const kings = '+17182303535';
-  phoneToCall = peter;
+  phoneToCall = yourNumber;
 
   twilioClient = twilio(
     process.env.TWILIO_ACCOUNT_SID,

@@ -21,6 +21,6 @@
     "twilio": "^4.16.0",
     "typescript": "^5.2.2",
     "uWebSockets.js": "uNetworking/uWebSockets.js#v20.31.0",
-    "ws": "^8.13.0"
+    "ws": "^8.18.0"
   }
 }
