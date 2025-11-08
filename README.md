@@ -2,7 +2,7 @@
 
 # 🚀 Welcome to Narx!
 
-# Narx is an online service that provides medication stockage information for independent pharmacies. Narx works with its network of pharmacy partners to maintain an accurate, real time availability of certain, in-demand medications including many madications used for ADHD. The Narx platform acts as a middleware software that relies upon the latest LLMs and twilio networking APIs to survey drug stockage using AI-enabled agents. Narx is currently only in testing mode, and the following codebase has not been deployed to production.
+# Narx is an online service that provides medication stockage information for independent pharmacies. Narx works with its network of pharmacy partners to maintain an accurate, real time availability of certain, in-demand medications. The Narx platform acts as a middleware software that relies upon the latest LLMs and twilio networking APIs to survey drug stockage using fine-tuned GPT instances. Narx is currently only in testing mode, and the following codebase has not been deployed to production.
 
 # ------> Setup Instructions <------
 
