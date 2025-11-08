@@ -9,9 +9,6 @@ import { StreamingStatus } from '../types/enums/StreamingStatus.ts';
 import { isNumber } from '../utils/isNumber.ts';
 import { getGptReplyAzure } from '../helpers/getGptReplyAzure.ts';
 import { detectIVR } from '../helpers/detectIVR.ts';
-import { respondWithVoice } from './responseWithVoice.ts';
-import { getRandomCacheFile } from './getRandomCacheFile.ts';
-
 export class Stream {
   private twilioClient: Twilio;
   private twilioWSConnection: WebSocket<TwilioUserData>;
